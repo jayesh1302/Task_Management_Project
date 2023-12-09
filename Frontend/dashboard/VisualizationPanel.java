@@ -1,19 +1,17 @@
 package dashboard;
 
+import shared.SharedData;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
-import org.jfree.ui.RectangleInsets;
-import java.util.Map;
-import java.util.HashMap;
 
 import javax.swing.*;
 import java.awt.*;
-
-import shared.SharedData;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VisualizationPanel extends JPanel {
 
@@ -21,10 +19,7 @@ public class VisualizationPanel extends JPanel {
         setLayout(new BorderLayout());
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Add a tab for all projects
-        tabbedPane.add("All Projects", createProjectPanel(0));
-
-        // Add tabs for individual projects
+        // Fetch project names from SharedData
         Map<Integer, String> projectNames = getProjectNamesFromDatabase();
         for (Map.Entry<Integer, String> entry : projectNames.entrySet()) {
             tabbedPane.add(entry.getValue(), createProjectPanel(entry.getKey()));
@@ -115,11 +110,12 @@ public class VisualizationPanel extends JPanel {
 
     private Map<Integer, String> getProjectNamesFromDatabase() {
         Map<Integer, String> projectNames = new HashMap<>();
-        projectNames.put(1, "Project Alpha");
-        projectNames.put(2, "Project Beta");
-        projectNames.put(3, "Project Gamma");
-        projectNames.put(4, "Project Delta");
-        projectNames.put(5, "Project Epsilon");
+        Object[][] allProjects = SharedData.getAllProjectDetails();
+        for (Object[] project : allProjects) {
+            Integer projectId = (Integer) project[0];
+            String projectName = (String) project[1];
+            projectNames.put(projectId, projectName);
+        }
         return projectNames;
     }
 
