@@ -15,6 +15,7 @@ public class ProjectPanel extends JPanel {
     private JTextField searchField;
     private JButton searchButton;
     private Map<Integer, TableRowSorter<DefaultTableModel>> rowSorters;
+    private DefaultTableModel mainTableModel; // Model for the main tab
 
     public ProjectPanel() {
         setLayout(new BorderLayout());
@@ -22,38 +23,54 @@ public class ProjectPanel extends JPanel {
         projectNames = getProjectNamesFromDatabase();
         rowSorters = new HashMap<>();
 
-        // Initialize the tabbed pane with tabs
+        // Add the main tab
+        addMainTab();
+
+        // Initialize the tabbed pane with tabs for individual projects
         for (Integer projectId : projectNames.keySet()) {
             String projectName = projectNames.get(projectId);
             tabbedPane.addTab(projectName, createTabContentPanel(projectId));
         }
 
-        // Add the tabbed pane to the center of the ProjectPanel
         add(tabbedPane, BorderLayout.CENTER);
 
         // Create a panel for search
         JPanel searchPanel = new JPanel();
-        // Use FlowLayout for the searchPanel to align components horizontally
-        searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); // Left-align components
+        searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); 
         searchField = new JTextField(20);
         searchButton = new JButton("Search");
 
-        // Add searchField and searchButton to the searchPanel
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
-
-        // Add the search panel to the bottom of the ProjectPanel
         add(searchPanel, BorderLayout.SOUTH);
 
-        // Action listener for search button
         searchButton.addActionListener(e -> search());
-
-        // Document listener for search field to enable real-time search
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { search(); }
             public void removeUpdate(DocumentEvent e) { search(); }
             public void changedUpdate(DocumentEvent e) { search(); }
         });
+    }
+
+    private void addMainTab() {
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        String[] mainColumnNames = {"Project ID", "Project Name", "Start Date", "Completion Date"};
+        Object[][] mainRowData = SharedData.getAllProjectDetails(); 
+
+        mainTableModel = new DefaultTableModel(mainRowData, mainColumnNames) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable mainTable = new JTable(mainTableModel);
+        TableRowSorter<DefaultTableModel> mainSorter = new TableRowSorter<>(mainTableModel);
+        rowSorters.put(-1, mainSorter); 
+        mainTable.setRowSorter(mainSorter);
+
+        JScrollPane mainScrollPane = new JScrollPane(mainTable);
+        mainPanel.add(mainScrollPane, BorderLayout.CENTER);
+        tabbedPane.insertTab("All Projects", null, mainPanel, null, 0);
     }
 
     private void search() {
@@ -67,7 +84,7 @@ public class ProjectPanel extends JPanel {
             }
         }
     }
-    
+
     private JPanel createTabContentPanel(int projectId) {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = SharedData.columnNames;
@@ -75,14 +92,13 @@ public class ProjectPanel extends JPanel {
 
         DefaultTableModel model = new DefaultTableModel(rowData, columnNames) {
             public boolean isCellEditable(int row, int column) {
-                // make the cells non-editable or implement your own logic
                 return false;
             }
         };
 
         JTable table = new JTable(model);
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
-        rowSorters.put(tabbedPane.getTabCount() - 1, sorter); // Store sorter for each tab
+        rowSorters.put(tabbedPane.getTabCount() - 1, sorter); 
         table.setRowSorter(sorter);
 
         JScrollPane scrollPane = new JScrollPane(table);
@@ -92,7 +108,7 @@ public class ProjectPanel extends JPanel {
     }
 
     private Map<Integer, String> getProjectNamesFromDatabase() {
-        // This should be replaced with actual database query handling code
+        // Dummy implementation, replace with actual database query handling code
         Map<Integer, String> projectNames = new HashMap<>();
         projectNames.put(1, "Project Alpha");
         projectNames.put(2, "Project Beta");

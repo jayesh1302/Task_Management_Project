@@ -1,5 +1,12 @@
 package shared;
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class SharedData {
     public static final String[] columnNames = {
@@ -42,6 +49,64 @@ public class SharedData {
             {5, 33, "11/21/2023 2:20 PM", "Escalated", "Server performance issue", "Monitoring server resources", "HIGH", "IT Operations", "Emma Dav4, is"},
             {5, 34, "11/22/2023 8:45 AM", "Resolved", "Software licensing inquiry", "Provided license details", "MEDIUM", "Sales Team", "Henry Brow5, n"}
     }; 
+    
+//    private static final Object[][] allProjectDetails = {
+//            // ProjectID, Project Name, Start Date, Completion Date
+//            {1, "Project Alpha", "01/01/2023", "12/31/2023"},
+//            {2, "Project Beta", "02/15/2023", "11/30/2023"},
+//            {3, "Project Gamma", "03/01/2023", "10/15/2023"},
+//            {4, "Project Delta", "04/20/2023", "09/30/2023"},
+//            {5, "Project Epsilon", "05/05/2023", "08/20/2023"}
+//    };
+//    
+//    public static Object[][] getAllProjectDetails() {
+//        return allProjectDetails;
+//    }
+    public static Object[][] getAllProjectDetails() {
+        String urlString = "http://10.18.249.69:8080/api/v1/project/allProjects";
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+            String output;
+            StringBuilder response = new StringBuilder();
+            while ((output = br.readLine()) != null) {
+                response.append(output);
+            }
+
+            conn.disconnect();
+
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            JSONArray projects = jsonResponse.getJSONArray("data");
+
+            Object[][] projectDetails = new Object[projects.length()][];
+            for (int i = 0; i < projects.length(); i++) {
+                JSONObject project = projects.getJSONObject(i);
+                int projectId = project.getInt("projectId");
+                String projectName = project.getString("projectName");
+                String startDate = project.getString("startDate").substring(0, 10); // Assuming you need date part only
+                String completionDate = project.getString("completionDate").substring(0, 10);
+
+                projectDetails[i] = new Object[]{projectId, projectName, startDate, completionDate};
+            }
+
+            return projectDetails;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Object[][]{}; // Return an empty array in case of an error
+        }
+    }
+
+    
     public static Object[][] getTasksByProjectId(int projectId) {
         ArrayList<Object[]> filteredTasks = new ArrayList<>();
         for (Object[] row : rowData) {
