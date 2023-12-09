@@ -51,7 +51,7 @@ public class SharedData {
                 int projectId = project.getInt("projectId");
                 String projectName = project.getString("projectName");
                 String startDate = project.getString("startDate").substring(0, 10); // Assuming you need date part only
-                String completionDate = project.getString("completionDate").substring(0, 10);
+                String completionDate = project.isNull("completionDate") ? "" : project.getString("completionDate").substring(0, 10);
 
                 projectDetails[i] = new Object[]{projectId, projectName, startDate, completionDate};
             }
