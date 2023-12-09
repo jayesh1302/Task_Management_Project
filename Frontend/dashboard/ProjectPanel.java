@@ -15,6 +15,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import java.io.StringWriter;
+import java.io.PrintWriter;
+
 public class ProjectPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JTextField searchField;
@@ -147,34 +150,29 @@ public class ProjectPanel extends JPanel {
             String completionDate = completionDateField.getText();
 
             // Make POST request to create a new project
-            createProject();
+            createProject(projectName, startDate, completionDate);
         }
     }
 
-    private void createProject() {
+    private void createProject(String projectName, String startDate, String completionDate) {
         try {
-            URL url = new URL("http://10.18.249.69/api/v1/project/create");
+            URL url = new URL("http://10.18.249.69:8080/api/v1/project/create");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
-            String completionDate = "".equals("") ? null : "\"\""; // Replace with actual variable or logic
-            String jsonInputString = String.format(
-                    "{\"projectName\": \"%s\", \"startDate\": \"%s\", \"completionDate\": %s, \"userId\": \"%s\"}", 
-                    "testJayesh", "03/29/2023", "03/29/2024", "1"
-            );
-
-            System.out.println("Making POST request with data:");
+            // Adjust the date format and JSON structure to match the desired format
+            String jsonInputString = String.format("{\"projectName\": \"%s\", \"startDate\": \"%s\", \"completionDate\": \"%s\", \"userId\": \"%s\"}", 
+                                                   projectName, startDate.replaceAll("-", "/"), completionDate.replaceAll("-", "/"), 1);
             System.out.println(jsonInputString);
-
             try(OutputStream os = conn.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
 
             int responseCode = conn.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 // Handle successful response
                 JOptionPane.showMessageDialog(null, "Project created successfully.");
             } else {
@@ -182,10 +180,10 @@ public class ProjectPanel extends JPanel {
                 JOptionPane.showMessageDialog(null, "Error creating project. Server returned: " + responseCode);
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        	StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage() + "\n\n" + sw.toString(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
-
 }
