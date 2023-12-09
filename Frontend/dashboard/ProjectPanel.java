@@ -1,6 +1,8 @@
 package dashboard;
 
 import shared.SharedData;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -10,12 +12,17 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class ProjectPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JTextField searchField;
     private JButton searchButton;
     private JButton refreshButton; // New button for refreshing
+    private JButton addProjectButton;
     private Map<Integer, TableRowSorter<DefaultTableModel>> rowSorters;
     private DefaultTableModel mainTableModel; // Model for the main tab
 
@@ -37,20 +44,23 @@ public class ProjectPanel extends JPanel {
 
         add(tabbedPane, BorderLayout.CENTER);
 
-        // Create a panel for search and refresh
+        // Create a panel for search and add new project
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchField = new JTextField(20);
         searchButton = new JButton("Search");
+        addProjectButton = new JButton("Add New Project");
         refreshButton = new JButton("Refresh"); // Added refresh button
 
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
-        searchPanel.add(refreshButton); // Added refresh button to the panel
+        searchPanel.add(addProjectButton);
+        searchPanel.add(refreshButton);
         add(searchPanel, BorderLayout.SOUTH);
 
-        // Add action listeners for search and refresh functionality
+        // Add action listeners
         searchButton.addActionListener(e -> search());
-        refreshButton.addActionListener(e -> refresh()); // Added action for the refresh button
+        addProjectButton.addActionListener(e -> addNewProject());
+        refreshButton.addActionListener(e -> refresh());
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 search();
@@ -187,14 +197,67 @@ public class ProjectPanel extends JPanel {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Dashboard");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.getContentPane().add(new ProjectPanel());
-            frame.setPreferredSize(new Dimension(800, 600));
-            frame.pack();
-            frame.setVisible(true);
-        });
+    private void addNewProject() {
+        JTextField projectNameField = new JTextField(20);
+        JTextField startDateField = new JTextField(20);
+        JTextField completionDateField = new JTextField(20);
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Project Name:"));
+        panel.add(projectNameField);
+        panel.add(new JLabel("Start Date (YYYY-MM-DD):"));
+        panel.add(startDateField);
+        panel.add(new JLabel("Completion Date (YYYY-MM-DD):"));
+        panel.add(completionDateField);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Enter Project Details",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String projectName = projectNameField.getText();
+            String startDate = startDateField.getText();
+            String completionDate = completionDateField.getText();
+
+            // Make POST request to create a new project
+            createProject();
+        }
     }
+
+    private void createProject() {
+        try {
+            URL url = new URL("http://10.18.249.69/api/v1/project/create");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            String completionDate = "".equals("") ? null : "\"\""; // Replace with actual variable or logic
+            String jsonInputString = String.format(
+                    "{\"projectName\": \"%s\", \"startDate\": \"%s\", \"completionDate\": %s, \"userId\": \"%s\"}", 
+                    "testJayesh", "03/29/2023", "03/29/2024", "1"
+            );
+
+            System.out.println("Making POST request with data:");
+            System.out.println(jsonInputString);
+
+            try(OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+                // Handle successful response
+                JOptionPane.showMessageDialog(null, "Project created successfully.");
+            } else {
+                // Handle server error
+                JOptionPane.showMessageDialog(null, "Error creating project. Server returned: " + responseCode);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+    }
+
+
+
 }
