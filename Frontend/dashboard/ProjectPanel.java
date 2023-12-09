@@ -1,6 +1,4 @@
 package dashboard;
-import java.util.Map;
-import java.util.HashMap;
 
 import shared.SharedData;
 
@@ -10,11 +8,14 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProjectPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JTextField searchField;
     private JButton searchButton;
+    private JButton refreshButton; // New button for refreshing
     private Map<Integer, TableRowSorter<DefaultTableModel>> rowSorters;
     private DefaultTableModel mainTableModel; // Model for the main tab
 
@@ -36,17 +37,20 @@ public class ProjectPanel extends JPanel {
 
         add(tabbedPane, BorderLayout.CENTER);
 
-        // Create a panel for search
+        // Create a panel for search and refresh
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchField = new JTextField(20);
         searchButton = new JButton("Search");
+        refreshButton = new JButton("Refresh"); // Added refresh button
 
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
+        searchPanel.add(refreshButton); // Added refresh button to the panel
         add(searchPanel, BorderLayout.SOUTH);
 
-        // Add action listeners for search functionality
+        // Add action listeners for search and refresh functionality
         searchButton.addActionListener(e -> search());
+        refreshButton.addActionListener(e -> refresh()); // Added action for the refresh button
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 search();
@@ -102,18 +106,95 @@ public class ProjectPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // Set the project ID as a client property for the tab
+        panel.putClientProperty("projectId", projectId);
+
         return panel;
     }
 
     private void search() {
-        TableRowSorter<DefaultTableModel> currentSorter = rowSorters.get(tabbedPane.getSelectedIndex());
-        if (currentSorter != null) {
-            String text = searchField.getText();
-            if (text.trim().length() == 0) {
-                currentSorter.setRowFilter(null);
-            } else {
-                currentSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+        int selectedIndex = tabbedPane.getSelectedIndex();
+
+        if (selectedIndex == 0) {
+            // "All Projects" tab
+            TableRowSorter<DefaultTableModel> mainSorter = rowSorters.get(-1);
+            if (mainSorter != null) {
+                String text = searchField.getText();
+                if (text.trim().length() == 0) {
+                    mainSorter.setRowFilter(null);
+                } else {
+                    mainSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+        } else {
+            // Individual project tab
+            try {
+                int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
+                DefaultTableModel model = (DefaultTableModel) ((JTable) ((JScrollPane) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getComponent(0)).getViewport().getView()).getModel();
+                Object[][] updatedTasks = SharedData.getTasksByProjectId(projectId);
+                model.setDataVector(updatedTasks, SharedData.columnNames);
+            } catch (NumberFormatException | NullPointerException e) {
+                // Handle non-numeric project ID or null project ID (e.g., "Project Alpha")
+                // Add your logic here or simply skip the tab
+                System.out.println("Skipping tab with invalid project ID: " + tabbedPane.getTitleAt(selectedIndex));
             }
         }
+    }
+
+    // New method for refreshing the project list
+    private void refresh() {
+        int selectedIndex = tabbedPane.getSelectedIndex();
+
+        if (selectedIndex == 0) {
+            // "All Projects" tab
+            // Fetch updated project details from the backend (Assuming you have a method for this in SharedData)
+            Object[][] updatedProjects = SharedData.getAllProjectDetails();
+            mainTableModel.setDataVector(updatedProjects, new String[]{"Project ID", "Project Name", "Start Date", "Completion Date"});
+
+            // Add new tabs for any newly created projects
+            for (Object[] project : updatedProjects) {
+                Integer projectId = (Integer) project[0];
+                String projectName = (String) project[1];
+
+                // Check if the project ID already exists in the tabbed pane
+                boolean tabExists = false;
+                for (int i = 1; i < tabbedPane.getTabCount(); i++) {
+                    JPanel tabPanel = (JPanel) tabbedPane.getComponentAt(i);
+                    int existingProjectId = (int) tabPanel.getClientProperty("projectId");
+                    if (existingProjectId == projectId) {
+                        tabExists = true;
+                        break;
+                    }
+                }
+
+                // If the tab does not exist, create a new tab
+                if (!tabExists) {
+                    tabbedPane.addTab(projectName, createTabContentPanel(projectId));
+                }
+            }
+        } else {
+            // Individual project tab
+            try {
+                int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
+                DefaultTableModel model = (DefaultTableModel) ((JTable) ((JScrollPane) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getComponent(0)).getViewport().getView()).getModel();
+                Object[][] updatedTasks = SharedData.getTasksByProjectId(projectId);
+                model.setDataVector(updatedTasks, SharedData.columnNames);
+            } catch (NumberFormatException | NullPointerException e) {
+                // Handle non-numeric project ID or null project ID (e.g., "Project Alpha")
+                // Add your logic here or simply skip the tab
+                System.out.println("Skipping tab with invalid project ID: " + tabbedPane.getTitleAt(selectedIndex));
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Dashboard");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.getContentPane().add(new ProjectPanel());
+            frame.setPreferredSize(new Dimension(800, 600));
+            frame.pack();
+            frame.setVisible(true);
+        });
     }
 }
