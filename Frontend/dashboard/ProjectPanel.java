@@ -246,6 +246,7 @@ public class ProjectPanel extends JPanel {
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_CREATED) {
                 // Handle successful response
+                refresh();
                 JOptionPane.showMessageDialog(null, "Project created successfully.");
             } else {
                 // Handle server error
