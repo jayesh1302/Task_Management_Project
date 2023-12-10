@@ -1,5 +1,7 @@
 package dashboard;
 import javax.swing.*;
+import dashboard.VisualizationPanel;
+import dashboard.DashboardPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;

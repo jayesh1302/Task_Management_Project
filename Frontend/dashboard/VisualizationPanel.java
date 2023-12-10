@@ -55,7 +55,7 @@ public class VisualizationPanel extends JPanel {
         DefaultPieDataset dataset = new DefaultPieDataset();
         for (Object[] row : SharedData.rowData) {
             if (projectId == 0 || (int) row[0] == projectId) {
-                String status = (String) row[3];
+                String status = (String) row[6];
                 Comparable<?> statusKey = status;
                 if (dataset.getIndex(statusKey) >= 0) {
                     dataset.setValue(statusKey, dataset.getValue(statusKey).intValue() + 1);
