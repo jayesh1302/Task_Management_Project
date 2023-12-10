@@ -228,15 +228,17 @@ public class ProjectPanel extends JPanel {
 
     private void createProject(String projectName, String startDate, String completionDate) {
         try {
-            URL url = new URL("http://10.18.249.69:8080/api/v1/project/create");
+            URL url = new URL("http://192.168.1.22:8080/api/v1/project/create");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyYXRpa3ZpZzIyQGdtYWlsLmNvbSIsInVzZXJJZCI6NSwiaWF0IjoxNzAyMjM5Mzc1LCJleHAiOjE3MDIzMjU3NzV9.bqfDhrfV1oKaMG2cvok-tSuW4JwHOBz57m3Ap0TvLI0");
+
             conn.setDoOutput(true);
 
             // Adjust the date format and JSON structure to match the desired format
-            String jsonInputString = String.format("{\"projectName\": \"%s\", \"startDate\": \"%s\", \"completionDate\": \"%s\", \"userId\": \"%s\"}", 
-                                                   projectName, startDate.replaceAll("-", "/"), completionDate.replaceAll("-", "/"), 1);
+            String jsonInputString = String.format("{\"projectName\": \"%s\", \"startDate\": \"%s\", \"completionDate\": \"%s\"}",
+                                                   projectName, startDate.replaceAll("-", "/"), completionDate.replaceAll("-", "/"));
             System.out.println(jsonInputString);
             try(OutputStream os = conn.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
