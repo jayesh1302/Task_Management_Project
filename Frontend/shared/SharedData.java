@@ -9,9 +9,9 @@ import java.net.URL;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 public class SharedData {
     // Updated column names as per your request
-	static String URL_Backend = "http://192.168.1.22:8080";
     public static final String[] columnNames = {
         "PROJECT_ID", "TASK_ID", "START_DATE", "END_DATE", "DUE_DATE", "LAST_UPDATE", "STATUS", "TITLE", "COMMENTS", "PRIORITY", "ASSIGNED TO", "REQUESTER"
     };
@@ -23,7 +23,7 @@ public class SharedData {
     }
 
     public static Object[][] getAllProjectDetails() {
-        String urlString = URL_Backend + "/api/v1/project/allProjects";
+        String urlString = Constants.BACKEND_URL + "/api/v1/project/allProjects";
         try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -67,7 +67,7 @@ public class SharedData {
     }
 
     public static Object[][] getTasksByProjectId(int projectId) {
-        String urlString = URL_Backend + "/api/v1/task/getByProjectId/" + projectId;
+        String urlString = Constants.BACKEND_URL + "/api/v1/task/getByProjectId/" + projectId;
 
         try {
             URL url = new URL(urlString);

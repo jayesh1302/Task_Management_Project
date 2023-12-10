@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
+import shared.Constants;
+
 public class ProjectPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JTextField searchField;
@@ -228,7 +230,7 @@ public class ProjectPanel extends JPanel {
 
     private void createProject(String projectName, String startDate, String completionDate) {
         try {
-            URL url = new URL("http://192.168.1.22:8080/api/v1/project/create");
+            URL url = new URL(Constants.BACKEND_URL +"/api/v1/project/create");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
