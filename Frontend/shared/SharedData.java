@@ -23,13 +23,14 @@ public class SharedData {
     }
 
     public static Object[][] getAllProjectDetails() {
+        System.out.println(JwtStorage.getJwtToken());
         String urlString = Constants.BACKEND_URL + "/api/v1/project/allProjects";
         try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyYXRpa3ZpZzIyQGdtYWlsLmNvbSIsInVzZXJJZCI6NSwiaWF0IjoxNzAyMjM5Mzc1LCJleHAiOjE3MDIzMjU3NzV9.bqfDhrfV1oKaMG2cvok-tSuW4JwHOBz57m3Ap0TvLI0");
+            conn.setRequestProperty("Authorization", "Bearer " + JwtStorage.getJwtToken());
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
             }
@@ -74,7 +75,7 @@ public class SharedData {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyYXRpa3ZpZzIyQGdtYWlsLmNvbSIsInVzZXJJZCI6NSwiaWF0IjoxNzAyMjM5Mzc1LCJleHAiOjE3MDIzMjU3NzV9.bqfDhrfV1oKaMG2cvok-tSuW4JwHOBz57m3Ap0TvLI0");
+            conn.setRequestProperty("Authorization", "Bearer " + JwtStorage.getJwtToken());
 
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());

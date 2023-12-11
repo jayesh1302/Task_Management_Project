@@ -5,7 +5,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 
+import dashboard.Dashboard;
 import shared.Constants;
+import shared.JwtStorage;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -78,35 +80,43 @@ public class LoginPage {
         String jsonInputString = String.format("{\"userEmail\":\"%s\", \"userPassword\":\"%s\"}", userEmail, userPassword);
 
         try {
-            URL url = new URL("http://192.168.1.22:8080/api/v1/auth/login");
+            URL url = new URL("http://localhost:8080/api/v1/auth/login");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
-
+//
             try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
+                byte[] input = jsonInputString.getBytes();
                 os.write(input, 0, input.length);
             }
 
             StringBuilder response = new StringBuilder();
             try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), "utf-8"))) {
+                    new InputStreamReader(conn.getInputStream()))) {
                 String responseLine;
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-            } finally {
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(frame, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+                e.getMessage();
+            }
+            finally {
                 conn.disconnect();
             }
 
             // Extract token and save it using JwtStorage
             String token = extractTokenFromResponse(response.toString());
             JwtStorage.saveJwtToken(token);
-            
-            JOptionPane.showMessageDialog(frame, "Login successful", "Success", JOptionPane.INFORMATION_MESSAGE);
+            SwingUtilities.invokeLater(Dashboard::new);
+            frame.dispose();
+//            JOptionPane.showMessageDialog(frame, "Login successful", "Success", JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (IOException ex) {
+        }
+
+        catch (IOException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Error during login", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -268,25 +278,5 @@ public class LoginPage {
         gbc.insets = new Insets(0, 50, 10, 50);
         textField.setPreferredSize(new Dimension(200, 24));
         panel.add(textField, gbc);
-    }
-
-    public static class JwtStorage {
-
-        private static final String JWT_PREF_KEY = "jwtToken";
-
-        public static void saveJwtToken(String jwtToken) {
-            Preferences preferences = Preferences.userNodeForPackage(JwtStorage.class);
-            preferences.put(JWT_PREF_KEY, jwtToken);
-        }
-
-        public static String getJwtToken() {
-            Preferences preferences = Preferences.userNodeForPackage(JwtStorage.class);
-            return preferences.get(JWT_PREF_KEY, null);
-        }
-
-        public static void clearJwtToken() {
-            Preferences preferences = Preferences.userNodeForPackage(JwtStorage.class);
-            preferences.remove(JWT_PREF_KEY);
-        }
     }
 }
