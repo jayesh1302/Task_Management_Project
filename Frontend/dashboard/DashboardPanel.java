@@ -1,6 +1,7 @@
 package dashboard;
 
 import TaskInfo.TaskInfo;
+
 import shared.SharedData;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
