@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -44,8 +45,9 @@ public class ProjectPanel extends JPanel {
         for (Object[] project : allProjects) {
             Integer projectId = (Integer) project[0];
             String projectName = (String) project[1];
-            tabbedPane.addTab(projectName, createTabContentPanel(projectId));
+            tabbedPane.addTab(projectName, createTabContentPanel(project));
         }
+
 
         add(tabbedPane, BorderLayout.CENTER);
 
@@ -102,8 +104,17 @@ public class ProjectPanel extends JPanel {
         tabbedPane.insertTab("All Projects", null, mainPanel, null, 0);
     }
 
-    private JPanel createTabContentPanel(int projectId) {
+    private JPanel createTabContentPanel(Object[] project) {
         JPanel panel = new JPanel(new BorderLayout());
+        JPanel projectDetails = new JPanel(new GridLayout(1, 4));
+        int projectId = (int) project[0];
+        projectDetails.setBorder(new EmptyBorder(25,25,25,25));
+//        projectDetails.setBackground(Color.WHITE);
+        projectDetails.add(new JLabel("Project ID: " + projectId));
+        projectDetails.add(new JLabel("Project Name: " + project[1]));
+        projectDetails.add(new JLabel("Start Date: " + project[2]));
+        projectDetails.add(new JLabel("Completion Date: " + project[3]));
+
         String[] columnNames = SharedData.columnNames;
         Object[][] rowData = SharedData.getTasksByProjectId(projectId);
 
@@ -119,6 +130,8 @@ public class ProjectPanel extends JPanel {
         table.setRowSorter(sorter);
 
         JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(projectDetails, BorderLayout.NORTH);
+
         panel.add(scrollPane, BorderLayout.CENTER);
 
         // Set the project ID as a client property for the tab
@@ -184,7 +197,7 @@ public class ProjectPanel extends JPanel {
 
                 // If the tab does not exist, create a new tab
                 if (!tabExists) {
-                    tabbedPane.addTab(projectName, createTabContentPanel(projectId));
+                    tabbedPane.addTab(projectName, createTabContentPanel(project));
                 }
             }
         } else {
