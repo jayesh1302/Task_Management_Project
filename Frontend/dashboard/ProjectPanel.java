@@ -1,5 +1,6 @@
 package dashboard;
 
+import shared.JwtStorage;
 import shared.SharedData;
 import java.util.Map;
 import java.util.HashMap;
@@ -247,7 +248,7 @@ public class ProjectPanel extends JPanel {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyYXRpa3ZpZzIyQGdtYWlsLmNvbSIsInVzZXJJZCI6NSwiaWF0IjoxNzAyMjM5Mzc1LCJleHAiOjE3MDIzMjU3NzV9.bqfDhrfV1oKaMG2cvok-tSuW4JwHOBz57m3Ap0TvLI0");
+            conn.setRequestProperty("Authorization", "Bearer " + JwtStorage.getJwtToken());
 
             conn.setDoOutput(true);
 
