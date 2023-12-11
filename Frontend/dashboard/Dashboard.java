@@ -1,11 +1,14 @@
 package dashboard;
 import javax.swing.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import dashboard.VisualizationPanel;
 import dashboard.DashboardPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import loginpage.LoginPage;
 
 public class Dashboard extends JFrame {
     private CardLayout cardLayout = new CardLayout();
@@ -17,6 +20,34 @@ public class Dashboard extends JFrame {
         setSize(1600, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setForeground(Color.RED); // Set the text to red
+        logoutButton.setBackground(Color.WHITE); // Set the background color
+        logoutButton.setFocusPainted(false);
+        logoutButton.setFont(new Font("Arial", Font.BOLD, 12));
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Close the current dashboard window
+                dispose();
+                // Open the login page
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        new LoginPage(); // Assuming LoginPage has a constructor that sets up the UI
+                    }
+                });
+            }
+        });
+
+        // Assuming there's a panel or container for the logoutButton at the bottom left
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BorderLayout());
+        bottomPanel.add(logoutButton, BorderLayout.WEST);
+
+        // Add the bottomPanel to the JFrame
+        add(bottomPanel, BorderLayout.SOUTH);
 
         String[] menuItems = {"Projects", "Visualizations", "All", "Last week", "Last month", "Last year"};
         menuList = new JList<>(menuItems);
