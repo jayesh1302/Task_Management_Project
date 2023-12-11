@@ -24,16 +24,8 @@ import java.util.prefs.Preferences;
 import shared.Constants;
 
 public class LoginPage {
-	
 
-    private static JLabel errorLabel; // Error message label
-
-    public static void main(String[] args) {
-    	
-        errorLabel = new JLabel("Passwords do not match.");
-        errorLabel.setForeground(Color.RED);
-        errorLabel.setVisible(false);
-
+    public LoginPage() {
         JFrame frame = new JFrame("Login and Sign Up Page");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridLayout(1, 2));
@@ -50,6 +42,18 @@ public class LoginPage {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+	
+
+    private static JLabel errorLabel; // Error message label
+
+    public static void main(String[] args) {
+    	SwingUtilities.invokeLater(LoginPage::new);
+        errorLabel = new JLabel("Passwords do not match.");
+        errorLabel.setForeground(Color.RED);
+        errorLabel.setVisible(false);
+
+
     }
 
     private static JPanel createLoginPanel(JFrame frame) {
