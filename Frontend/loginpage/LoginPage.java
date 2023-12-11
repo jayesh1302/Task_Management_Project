@@ -21,6 +21,8 @@ import java.util.regex.Matcher;
 
 import java.util.prefs.Preferences;
 
+import shared.Constants;
+
 public class LoginPage {
 	
 
@@ -80,7 +82,7 @@ public class LoginPage {
         String jsonInputString = String.format("{\"userEmail\":\"%s\", \"userPassword\":\"%s\"}", userEmail, userPassword);
 
         try {
-            URL url = new URL("http://localhost:8080/api/v1/auth/login");
+            URL url = new URL(Constants.BACKEND_URL+"/api/v1/auth/login");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
