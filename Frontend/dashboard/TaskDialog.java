@@ -5,6 +5,7 @@ import javax.swing.*;
 import shared.Constants;
 import shared.JwtStorage;
 import services.CreateTask;
+import dashboard.ProjectPanel;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -95,13 +96,19 @@ public class TaskDialog extends JDialog {
 
         // Make a POST request to create the task using the CreateTask class
         boolean taskCreated = CreateTask.sendPostRequest(Constants.BACKEND_URL + "/api/v1/task/create", taskJson, JwtStorage.getJwtToken());
-
         if (taskCreated) {
             JOptionPane.showMessageDialog(this, "Task created successfully.");
+
+            // Call the refresh method in the parent ProjectPanel
+            if (getParent() instanceof ProjectPanel) {
+                ((ProjectPanel) getParent()).refresh();
+            }
+
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Error creating task.");
         }
+        // Call refresh function of ProjectPanel
     }
 
     private int getCurrentUserId() {
