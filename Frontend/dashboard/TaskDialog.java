@@ -4,18 +4,13 @@ import javax.swing.*;
 
 import shared.Constants;
 import shared.JwtStorage;
+import services.CreateTask;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.OutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 
 public class TaskDialog extends JDialog {
@@ -77,7 +72,6 @@ public class TaskDialog extends JDialog {
 
     private void addTask(int projectId) {
         // Get user input
-    	System.out.println("JAYESHHHHHHHHHHHHHHHHHHHH");
         String taskName = taskNameField.getText();
         String taskPriority = (String) taskPriorityComboBox.getSelectedItem();
         String taskStatus = (String) taskStatusComboBox.getSelectedItem();
@@ -98,8 +92,9 @@ public class TaskDialog extends JDialog {
                 taskName, taskPriority, taskStatus, currentDate, endDate, dueDate, currentDate, projectId,
                 assignedToUserId, assignedToUserId);
         System.out.println(taskJson);
-        // Make a POST request to create the task (you should implement this)
-        boolean taskCreated = createTask(taskJson);
+
+        // Make a POST request to create the task using the CreateTask class
+        boolean taskCreated = CreateTask.sendPostRequest(Constants.BACKEND_URL + "/api/v1/task/create", taskJson, JwtStorage.getJwtToken());
 
         if (taskCreated) {
             JOptionPane.showMessageDialog(this, "Task created successfully.");
@@ -113,34 +108,6 @@ public class TaskDialog extends JDialog {
         // Implement this method to get the current user's ID
         // You may retrieve it from the authentication system or user session
         return 1; // Replace with actual implementation
-    }
-
-    private boolean createTask(String taskJson) {
-        // Implement this method to make a POST request to create the task
-        // You can use HttpURLConnection or a library like Apache HttpClient
-
-        // Example code (replace with actual implementation):
-        try {
-        	System.out.println("JAYESH IN CREATE TASK");
-            URL url = new URL(Constants.BACKEND_URL+"/api/v1/task/create");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + JwtStorage.getJwtToken());
-            conn.setDoOutput(true);
-
-            // Write the JSON data to the request body
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = taskJson.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            return responseCode == HttpURLConnection.HTTP_CREATED;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
     public void showDialog() {
