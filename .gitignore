@@ -1,2 +1,8 @@
 bin
 .classpath
+
+.idea
+lib/
+out/
+Frontend.iml
+.project

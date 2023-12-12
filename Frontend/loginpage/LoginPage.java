@@ -221,13 +221,12 @@ public class LoginPage {
 
       if (password.equals(confirmPassword)) {
           errorLabel.setVisible(false);
-          String json = String.format("{\"userFname\":\"%s\", \"userLname\":\"%s\", \"userEmail\":\"%s\", \"userPwd\":\"%s\"}",
+          String json = String.format("{\"userFname\":\"%s\", \"userLname\":\"%s\", \"userEmail\":\"%s\", \"userPassword\":\"%s\"}",
                   firstNameField.getText(), lastNameField.getText(), emailField.getText(), password);
-
+          System.out.println(json);
           try {
-              sendPost(Constants.BACKEND_URL+"/api/v1/users/add", json);
-              System.out.println(Constants.USER_TOKEN);
-          } catch (IOException ex) {
+              sendPost(Constants.BACKEND_URL+"/api/v1/auth/register", json);
+          } catch (Exception ex) {
               ex.printStackTrace();
               JOptionPane.showMessageDialog(panel, "Error sending the sign up request.", "Error", JOptionPane.ERROR_MESSAGE);
           }
@@ -235,7 +234,6 @@ public class LoginPage {
           errorLabel.setVisible(true);
           frame.pack(); // Repack the frame to accommodate the error label
       }
-      System.out.println(Constants.USER_TOKEN);
   });
 
   panel.add(Box.createVerticalGlue(), gbc);
@@ -257,7 +255,7 @@ public class LoginPage {
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json; utf-8");
         conn.setDoOutput(true);
-
+        System.out.println(jsonInputString);
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = jsonInputString.getBytes("utf-8");
             os.write(input, 0, input.length);
@@ -270,7 +268,7 @@ public class LoginPage {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
-            System.out.println(response.toString());
+            JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), "Registration Successful. Log in to continue.", "Registered", JOptionPane.INFORMATION_MESSAGE);
         } finally {
             conn.disconnect();
         }

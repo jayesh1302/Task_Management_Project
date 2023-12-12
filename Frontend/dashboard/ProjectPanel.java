@@ -1,5 +1,6 @@
 package dashboard;
 
+import com.sun.org.apache.bcel.internal.generic.Select;
 import shared.JwtStorage;
 import shared.SharedData;
 import shared.Constants;
@@ -14,18 +15,22 @@ import javax.swing.table.TableRowSorter;
 import TaskInfo.TaskInfoPanel;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ProjectPanel extends JPanel {
+public class  ProjectPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JTextField searchField;
     private JButton searchButton;
@@ -34,22 +39,28 @@ public class ProjectPanel extends JPanel {
     private JButton addProjectButton;
     private JButton addTaskButton;
     private Map<Integer, TableRowSorter<DefaultTableModel>> rowSorters;
+
+    private Map<String, Integer> openedTabs = new HashMap<>();
     private DefaultTableModel mainTableModel; // Model for the main tab
 
+    //    private ArrayList<Object[]> allProjects = new ArrayList<>();
+    Object[][] allProjects;
     public ProjectPanel() {
         setLayout(new BorderLayout());
         tabbedPane = new JTabbedPane();
         rowSorters = new HashMap<>();
+        allProjects = SharedData.getAllProjectDetails();
 
         // Add the main tab
         addMainTab();
 
         // Initialize the tabbed pane with tabs for projects from getAllProjectDetails
-        Object[][] allProjects = SharedData.getAllProjectDetails();
-        for (Object[] project : allProjects) {
+        for (int i=0; i<allProjects.length; i++) {
+            Object[] project = allProjects[i];
             Integer projectId = (Integer) project[0];
             String projectName = (String) project[1];
             tabbedPane.addTab(projectName, createTabContentPanel(project));
+            openedTabs.put(projectName, i+1);
         }
 
         add(tabbedPane, BorderLayout.CENTER);
@@ -76,7 +87,22 @@ public class ProjectPanel extends JPanel {
         addProjectButton.addActionListener(e -> addNewProject());
         addTaskButton.addActionListener(e -> showAddTaskDialog()); // Added action for Add New Task button
         refreshButton.addActionListener(e -> refresh());
+        closeButton.setVisible(false);
+        addTaskButton.setVisible(false);
+
         closeButton.addActionListener(e -> closeCurrentTab());
+
+        tabbedPane.addChangeListener((e) -> {
+            if(tabbedPane.getSelectedIndex() == 0){
+                closeButton.setVisible(false);
+                addTaskButton.setVisible(false);
+                addProjectButton.setVisible(true);
+            }else{
+                closeButton.setVisible(true);
+                addTaskButton.setVisible(true);
+                addProjectButton.setVisible(false);
+            }
+        });
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 search();
@@ -90,6 +116,7 @@ public class ProjectPanel extends JPanel {
                 search();
             }
         });
+
     }
 
     private void addMainTab() {
@@ -112,8 +139,34 @@ public class ProjectPanel extends JPanel {
         mainPanel.add(mainScrollPane, BorderLayout.CENTER);
         tabbedPane.insertTab("All Projects", null, mainPanel, null, 0);
 
+        mainTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String selectedProject = (String)mainTable.getValueAt(mainTable.getSelectedRow() ,1);
+                if(e.getClickCount() == 2){
+                    if(openedTabs.containsKey(selectedProject)){
+
+                        System.out.println("in here");
+                        tabbedPane.setSelectedIndex(openedTabs.get(selectedProject));
+                    }else{
+
+                        int tabs = tabbedPane.getTabCount();
+
+                        Object[] project = null;
+
+                        for(Object[] p : allProjects){
+                            if(p[1].equals(selectedProject)){
+                                project = p;
+                            }
+                        }
+                        tabbedPane.addTab((String)project[1], createTabContentPanel(project));
+                        openedTabs.put((String)project[1], tabs);
+                    }
+                }
+            }
+        });
+
         // Add individual project tabs
-        Object[][] allProjects = SharedData.getAllProjectDetails();
         for (Object[] project : allProjects) {
             Integer projectId = (Integer) project[0];
             String projectName = (String) project[1];
@@ -155,32 +208,55 @@ public class ProjectPanel extends JPanel {
         projectDetails.add(new JLabel("Project Name: " + project[1]));
         projectDetails.add(new JLabel("Start Date: " + project[2]));
         projectDetails.add(new JLabel("Completion Date: " + project[3]));
-
         String[] columnNames = SharedData.columnNames;
         Object[][] rowData = SharedData.getTasksByProjectId(projectId);
 
-        DefaultTableModel model = new DefaultTableModel(rowData, columnNames) {
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        if (rowData.length == 0) {
+            // Display "No tasks defined" message when there are no tasks
+            DefaultTableModel model = new DefaultTableModel(rowData, columnNames) {
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+            JTable table = new JTable(model);
+            TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+            rowSorters.put(projectId, sorter);
+            table.setRowSorter(sorter);
 
-        JTable table = new JTable(model);
-        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
-        rowSorters.put(projectId, sorter);
-        table.setRowSorter(sorter);
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(projectDetails, BorderLayout.NORTH);
+            panel.add(scrollPane, BorderLayout.CENTER);
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        panel.add(projectDetails, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+            JLabel noTasksLabel = new JLabel("No tasks defined");
+//            noTasksLabel.setHorizontalAlignment(JLabel.CENTER);
+            noTasksLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(noTasksLabel, BorderLayout.SOUTH);
 
-        // Set the project ID as a client property for the tab
+        } else {
+            DefaultTableModel model = new DefaultTableModel(rowData, columnNames) {
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            JTable table = new JTable(model);
+            TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+            rowSorters.put(projectId, sorter);
+            table.setRowSorter(sorter);
+
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(projectDetails, BorderLayout.NORTH);
+            panel.add(scrollPane, BorderLayout.CENTER);
+        }
         panel.putClientProperty("projectId", projectId);
 
         return panel;
     }
 
-    public void search() {
+
+
+
+    private void search() {
         int selectedIndex = tabbedPane.getSelectedIndex();
 
         if (selectedIndex == 0) {
@@ -271,6 +347,7 @@ public class ProjectPanel extends JPanel {
 
                 // If the tab does not exist, create a new tab
                 if (!tabExists) {
+
                     tabbedPane.addTab(projectName, createTabContentPanel(project));
                 }
             }
@@ -301,28 +378,32 @@ public class ProjectPanel extends JPanel {
             }
         }
     }
-
     private void closeCurrentTab() {
         int selectedIndex = tabbedPane.getSelectedIndex();
+
         if (selectedIndex != -1 && selectedIndex != 0) {
-            int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
+            System.out.println(((JPanel)tabbedPane.getComponentAt(selectedIndex)).getComponent(0).getName());
+            String projectId = tabbedPane.getTitleAt(selectedIndex);
+            System.out.println(projectId);
+            System.out.println(projectId);
             tabbedPane.remove(selectedIndex);
+            openedTabs.remove(projectId);
             // Additional logic if needed for handling the closed tab
         }
     }
 
+
     private void addNewProject() {
         JTextField projectNameField = new JTextField(20);
         JTextField startDateField = new JTextField(20);
-        JTextField completionDateField = new JTextField(20);
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("Project Name:"));
         panel.add(projectNameField);
         panel.add(new JLabel("Start Date (YYYY-MM-DD):"));
         panel.add(startDateField);
-        panel.add(new JLabel("Completion Date (YYYY-MM-DD):"));
-        panel.add(completionDateField);
+//        panel.add(new JLabel("Completion Date (YYYY-MM-DD):"));
+//        panel.add(completionDateField);
 
         int result = JOptionPane.showConfirmDialog(null, panel, "Enter Project Details",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -330,14 +411,22 @@ public class ProjectPanel extends JPanel {
         if (result == JOptionPane.OK_OPTION) {
             String projectName = projectNameField.getText();
             String startDate = startDateField.getText();
-            String completionDate = completionDateField.getText();
 
             // Make POST request to create a new project
-            createProject(projectName, startDate, completionDate);
+            createProject(projectName, startDate);
         }
     }
-
-    private void createProject(String projectName, String startDate, String completionDate) {
+    private void showAddTaskDialog() {
+        int selectedIndex = tabbedPane.getSelectedIndex();
+        if (selectedIndex >= 1) {
+            int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
+            TaskDialog taskDialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), projectId);
+            taskDialog.showDialog();
+        } else {
+            JOptionPane.showMessageDialog(this, "Select a project to add a task to.");
+        }
+    }
+    private void createProject(String projectName, String startDate) {
         try {
             URL url = new URL(Constants.BACKEND_URL + "/api/v1/project/create");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -347,10 +436,9 @@ public class ProjectPanel extends JPanel {
 
             conn.setDoOutput(true);
 
-            // Adjust the date format and JSON structure to match the desired format
-            String jsonInputString = String.format("{\"projectName\": \"%s\", \"startDate\": \"%s\", \"completionDate\": \"%s\"}",
-                    projectName, startDate.replaceAll("-", "/"), completionDate.replaceAll("-", "/"));
-            System.out.println(jsonInputString);
+            String jsonInputString = String.format("{\"projectName\": \"%s\", \"startDate\": \"%s\" }",
+                    projectName, startDate.replaceAll("-", "/"));
+
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -373,14 +461,14 @@ public class ProjectPanel extends JPanel {
         }
     }
 
-    private void showAddTaskDialog() {
-        int selectedIndex = tabbedPane.getSelectedIndex();
-        if (selectedIndex >= 1) {
-            int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
-            TaskDialog taskDialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), projectId);
-            taskDialog.showDialog();
-        } else {
-            JOptionPane.showMessageDialog(this, "Select a project to add a task to.");
-        }
-    }
+//    private void showAddTaskDialog() {
+//        int selectedIndex = tabbedPane.getSelectedIndex();
+//        if (selectedIndex >= 1) {
+//            int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
+//            TaskDialog taskDialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), projectId);
+//            taskDialog.showDialog();
+//        } else {
+//            JOptionPane.showMessageDialog(this, "Select a project to add a task to.");
+//        }
+//    }
 }
