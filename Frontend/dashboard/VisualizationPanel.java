@@ -71,7 +71,7 @@ public class VisualizationPanel extends JPanel {
         DefaultPieDataset dataset = new DefaultPieDataset();
         for (Object[] row : SharedData.rowData) {
             if (projectId == 0 || (int) row[0] == projectId) {
-                String priority = (String) row[6];
+                String priority = (String) row[9];
                 if (dataset.getIndex(priority) >= 0) {
                     dataset.setValue(priority, dataset.getValue(priority).intValue() + 1);
                 } else {
@@ -87,7 +87,7 @@ public class VisualizationPanel extends JPanel {
         Map<String, Integer> assignedToCount = new HashMap<>();
         for (Object[] row : SharedData.rowData) {
             if (projectId == 0 || (int) row[0] == projectId) {
-                String assignedTo = (String) row[7];
+                String assignedTo = (String) row[10];
                 assignedToCount.put(assignedTo, assignedToCount.getOrDefault(assignedTo, 0) + 1);
             }
         }

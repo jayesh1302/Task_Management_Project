@@ -121,26 +121,49 @@ public class ProjectPanel extends JPanel {
         String[] columnNames = SharedData.columnNames;
         Object[][] rowData = SharedData.getTasksByProjectId(projectId);
 
-        DefaultTableModel model = new DefaultTableModel(rowData, columnNames) {
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        if (rowData.length == 0) {
+            // Display "No tasks defined" message when there are no tasks
+            DefaultTableModel model = new DefaultTableModel(rowData, columnNames) {
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+            JTable table = new JTable(model);
+            TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+            rowSorters.put(projectId, sorter);
+            table.setRowSorter(sorter);
 
-        JTable table = new JTable(model);
-        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
-        rowSorters.put(projectId, sorter);
-        table.setRowSorter(sorter);
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(projectDetails, BorderLayout.NORTH);
+            panel.add(scrollPane, BorderLayout.CENTER);
+            
+            JLabel noTasksLabel = new JLabel("No tasks defined");
+//            noTasksLabel.setHorizontalAlignment(JLabel.CENTER);
+            noTasksLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(noTasksLabel, BorderLayout.SOUTH);
+            
+        } else {
+            DefaultTableModel model = new DefaultTableModel(rowData, columnNames) {
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        panel.add(projectDetails, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+            JTable table = new JTable(model);
+            TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+            rowSorters.put(projectId, sorter);
+            table.setRowSorter(sorter);
 
-        // Set the project ID as a client property for the tab
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(projectDetails, BorderLayout.NORTH);
+            panel.add(scrollPane, BorderLayout.CENTER);
+        }
+
         panel.putClientProperty("projectId", projectId);
 
         return panel;
     }
+
 
     private void search() {
         int selectedIndex = tabbedPane.getSelectedIndex();
