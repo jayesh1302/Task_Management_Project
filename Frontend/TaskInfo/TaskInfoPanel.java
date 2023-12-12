@@ -1,6 +1,7 @@
 package TaskInfo;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class TaskInfoPanel extends JPanel {
@@ -14,7 +15,8 @@ public class TaskInfoPanel extends JPanel {
     private JComboBox<String> priorityComboBox;
     private JTextField assignedToField;
     private JTextField requestedByField;
-    private JTextArea commentsTextArea;
+    private JScrollPane commentsTextArea;
+//    private JTextArea commentsTextArea;
     private JButton updateButton;
 
     public TaskInfoPanel(Object[] taskData) {
@@ -38,7 +40,12 @@ public class TaskInfoPanel extends JPanel {
         priorityComboBox = new JComboBox<>(new String[]{"LOW", "MEDIUM", "HIGH"});
         assignedToField = new JTextField(textFieldColumnWidth);
         requestedByField = new JTextField(textFieldColumnWidth);
-        commentsTextArea = new JTextArea(5, textFieldColumnWidth);
+        commentsTextArea = new JScrollPane();
+        commentsTextArea.setPreferredSize(new Dimension(400, 200));
+        commentsTextArea.setBackground(Color.WHITE);
+        commentsTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+//        commentsTextArea = new JTextArea(5, textFieldColumnWidth);
         updateButton = new JButton("Update");
 
         // Correct data initialization
@@ -61,8 +68,10 @@ public class TaskInfoPanel extends JPanel {
         }
         assignedToField.setText(taskData[10] != null ? taskData[10].toString() : "");
         requestedByField.setText(taskData[11] != null ? taskData[11].toString() : "");
+        commentsTextArea.setViewportView(createCommentPane());
+
         // Ensure comments are filled correctly
-        commentsTextArea.setText(taskData[8] != null ? taskData[8].toString() : "");
+//        commentsTextArea.setText(taskData[8] != null ? taskData[8].toString() : "here");
 
         // Add components with their labels
         addFieldWithLabel("TASK ID:", taskIdField, 0, gbc);
@@ -75,7 +84,7 @@ public class TaskInfoPanel extends JPanel {
         addFieldWithLabel("PRIORITY:", priorityComboBox, 7, gbc);
         addFieldWithLabel("ASSIGNED TO:", assignedToField, 8, gbc);
         addFieldWithLabel("REQUESTED BY:", requestedByField, 9, gbc);
-        addFieldWithLabel("COMMENTS:", new JScrollPane(commentsTextArea), 10, gbc);
+        addFieldWithLabel("COMMENTS:", commentsTextArea, 10, gbc);
 
         // Adding the update button at the bottom
         gbc.gridwidth = 2;
@@ -86,6 +95,29 @@ public class TaskInfoPanel extends JPanel {
         add(updateButton, gbc);
     }
 
+    private JPanel createCommentPane(){
+        JPanel cPanel = new JPanel(new GridLayout(0,1));
+
+        for(int i=0; i<20; i++){
+            JPanel comment = new JPanel(new BorderLayout());
+            comment.setBackground(Color.white);
+
+            JTextArea commentText = new JTextArea("Add comment here Add comment here Add comment here Add comment here");
+            comment.setBorder(new EmptyBorder(10,10,0,10));
+            commentText.setEditable(false);
+            commentText.setLineWrap(true);
+            commentText.setWrapStyleWord(true);
+
+            commentText.setColumns(20);
+
+            comment.add(new JLabel("Date: "), BorderLayout.NORTH);
+            comment.add(commentText, BorderLayout.CENTER);
+
+            cPanel.add(comment);
+        }
+        return cPanel;
+    }
+
     private void addFieldWithLabel(String labelText, Component field, int yPos, GridBagConstraints gbc) {
         JLabel label = new JLabel(labelText);
         label.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -93,7 +125,6 @@ public class TaskInfoPanel extends JPanel {
         gbc.gridy = yPos;
         gbc.anchor = GridBagConstraints.EAST;
         add(label, gbc);
-
         gbc.gridx = 1;
         gbc.gridy = yPos;
         gbc.anchor = GridBagConstraints.WEST;

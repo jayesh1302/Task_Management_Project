@@ -53,15 +53,6 @@ public class  ProjectPanel extends JPanel {
         // Add the main tab
         addMainTab();
 
-        // Initialize the tabbed pane with tabs for projects from getAllProjectDetails
-        for (int i=0; i<allProjects.length; i++) {
-            Object[] project = allProjects[i];
-            Integer projectId = (Integer) project[0];
-            String projectName = (String) project[1];
-            tabbedPane.addTab(projectName, createTabContentPanel(project));
-            openedTabs.add(projectName);
-        }
-
         add(tabbedPane, BorderLayout.CENTER);
 
         // Create a panel for search and add new project

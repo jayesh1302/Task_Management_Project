@@ -227,6 +227,7 @@ public class LoginPage {
           try {
               sendPost(Constants.BACKEND_URL+"/api/v1/auth/register", json);
           } catch (Exception ex) {
+
               ex.printStackTrace();
               JOptionPane.showMessageDialog(panel, "Error sending the sign up request.", "Error", JOptionPane.ERROR_MESSAGE);
           }
