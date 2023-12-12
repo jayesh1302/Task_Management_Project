@@ -10,6 +10,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+import com.toedter.calendar.JDateChooser;
 
 import TaskInfo.TaskInfoPanel;
 
@@ -28,6 +29,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import com.toedter.calendar.JDateChooser;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 import TaskInfo.TaskInfoPanel;
 
@@ -387,25 +392,27 @@ public class  ProjectPanel extends JPanel {
 
     private void addNewProject() {
         JTextField projectNameField = new JTextField(20);
-        JTextField startDateField = new JTextField(20);
+        JDateChooser startDateChooser = new JDateChooser();
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("Project Name:"));
         panel.add(projectNameField);
-        panel.add(new JLabel("Start Date (YYYY-MM-DD):"));
-        panel.add(startDateField);
-//        panel.add(new JLabel("Completion Date (YYYY-MM-DD):"));
-//        panel.add(completionDateField);
+        panel.add(new JLabel("Start Date:"));
+        panel.add(startDateChooser);
 
         int result = JOptionPane.showConfirmDialog(null, panel, "Enter Project Details",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             String projectName = projectNameField.getText();
-            String startDate = startDateField.getText();
+            Date startDate = startDateChooser.getDate();
+
+            // Convert the selected date to your desired format (e.g., "YYYY-MM-DD")
+            SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
+            String startDateString = dateFormat.format(startDate);
 
             // Make POST request to create a new project
-            createProject(projectName, startDate);
+            createProject(projectName, startDateString);
         }
     }
     private void showAddTaskDialog() {
@@ -459,14 +466,11 @@ public class  ProjectPanel extends JPanel {
         }
     }
 
-//    private void showAddTaskDialog() {
-//        int selectedIndex = tabbedPane.getSelectedIndex();
-//        if (selectedIndex >= 1) {
-//            int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
-//            TaskDialog taskDialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), projectId);
-//            taskDialog.showDialog();
-//        } else {
-//            JOptionPane.showMessageDialog(this, "Select a project to add a task to.");
-//        }
-//    }
+
 }
+
+
+
+
+
+
