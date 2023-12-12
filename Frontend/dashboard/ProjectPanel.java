@@ -159,16 +159,51 @@ public class ProjectPanel extends JPanel {
         } else {
             // Individual project tab
             try {
-                int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
-                DefaultTableModel model = (DefaultTableModel) ((JTable) ((JScrollPane) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getComponent(0)).getViewport().getView()).getModel();
-                Object[][] updatedTasks = SharedData.getTasksByProjectId(projectId);
-                model.setDataVector(updatedTasks, SharedData.columnNames);
+                Component selectedComponent = tabbedPane.getComponentAt(selectedIndex);
+
+                if (selectedComponent instanceof JPanel) {
+                    JPanel selectedPanel = (JPanel) selectedComponent;
+
+                    // Find the JTable within the selectedPanel
+                    JTable table = findTable(selectedPanel);
+
+                    if (table != null) {
+                        DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+                        // Example: filtering based on user input
+                        String text = searchField.getText();
+                        TableRowSorter<DefaultTableModel> sorter = rowSorters.get((int) selectedPanel.getClientProperty("projectId"));
+                        if (sorter != null) {
+                            if (text.trim().length() == 0) {
+                                sorter.setRowFilter(null);
+                            } else {
+                                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                            }
+                        }
+                    }
+                }
             } catch (NumberFormatException | NullPointerException e) {
                 // Handle non-numeric project ID or null project ID
                 System.out.println("Skipping tab with invalid project ID: " + tabbedPane.getTitleAt(selectedIndex));
             }
         }
     }
+
+    // Helper method to find JTable within a container
+    private JTable findTable(Container container) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof JTable) {
+                return (JTable) component;
+            } else if (component instanceof Container) {
+                JTable table = findTable((Container) component);
+                if (table != null) {
+                    return table;
+                }
+            }
+        }
+        return null;
+    }
+
 
     // New method for refreshing the project list
     private void refresh() {
@@ -205,9 +240,23 @@ public class ProjectPanel extends JPanel {
             // Individual project tab
             try {
                 int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
-                DefaultTableModel model = (DefaultTableModel) ((JTable) ((JScrollPane) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getComponent(0)).getViewport().getView()).getModel();
-                Object[][] updatedTasks = SharedData.getTasksByProjectId(projectId);
-                model.setDataVector(updatedTasks, SharedData.columnNames);
+                
+                // Update the project details in the main tab
+                Object[][] updatedProjects = SharedData.getAllProjectDetails();
+                mainTableModel.setDataVector(updatedProjects, new String[]{"Project ID", "Project Name", "Start Date", "Completion Date"});
+
+                // Find and update the specific project tab
+                for (int i = 1; i < tabbedPane.getTabCount(); i++) {
+                    JPanel tabPanel = (JPanel) tabbedPane.getComponentAt(i);
+                    int existingProjectId = (int) tabPanel.getClientProperty("projectId");
+
+                    if (existingProjectId == projectId) {
+                        DefaultTableModel model = (DefaultTableModel) ((JTable) ((JScrollPane) tabPanel.getComponent(1)).getViewport().getView()).getModel();
+                        Object[][] updatedTasks = SharedData.getTasksByProjectId(projectId);
+                        model.setDataVector(updatedTasks, SharedData.columnNames);
+                        break;
+                    }
+                }
             } catch (NumberFormatException | NullPointerException e) {
                 // Handle non-numeric project ID or null project ID
                 System.out.println("Skipping tab with invalid project ID: " + tabbedPane.getTitleAt(selectedIndex));
