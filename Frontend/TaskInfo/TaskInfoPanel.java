@@ -36,7 +36,7 @@ public class TaskInfoPanel extends JPanel {
         dueDateField = new JTextField(textFieldColumnWidth);
         lastUpdateField = new JTextField(textFieldColumnWidth);
         titleField = new JTextField(textFieldColumnWidth);
-        statusComboBox = new JComboBox<>(new String[]{"IN_PROGRESS", "COMPLETED", "PENDING", "CANCELLED"});
+        statusComboBox = new JComboBox<>(new String[]{"IN_PROGRESS", "RESOLVED", "UNRESOLVED", "ESCALATED"});
         priorityComboBox = new JComboBox<>(new String[]{"LOW", "MEDIUM", "HIGH"});
         assignedToField = new JTextField(textFieldColumnWidth);
         requestedByField = new JTextField(textFieldColumnWidth);
