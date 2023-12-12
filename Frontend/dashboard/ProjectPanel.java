@@ -87,19 +87,19 @@ public class  ProjectPanel extends JPanel {
         addTaskButton.addActionListener(e -> showAddTaskDialog()); // Added action for Add New Task button
         refreshButton.addActionListener(e -> refresh());
         closeButton.setVisible(false);
-        addTaskButton.setVisible(false);
+        addTaskButton.setEnabled(false);
 
         closeButton.addActionListener(e -> closeCurrentTab());
 
         tabbedPane.addChangeListener((e) -> {
             if(tabbedPane.getSelectedIndex() == 0){
                 closeButton.setVisible(false);
-                addTaskButton.setVisible(false);
-                addProjectButton.setVisible(true);
+                addTaskButton.setEnabled(false);
+                addProjectButton.setEnabled(true);
             }else{
                 closeButton.setVisible(true);
-                addTaskButton.setVisible(true);
-                addProjectButton.setVisible(false);
+                addTaskButton.setEnabled(true);
+                addProjectButton.setEnabled(false);
             }
         });
         searchField.getDocument().addDocumentListener(new DocumentListener() {
