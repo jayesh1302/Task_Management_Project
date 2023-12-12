@@ -10,6 +10,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+
+import TaskInfo.TaskInfoPanel;
+
 import java.awt.*;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -19,6 +22,8 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ProjectPanel extends JPanel {
     private JTabbedPane tabbedPane;
@@ -54,14 +59,14 @@ public class ProjectPanel extends JPanel {
         searchField = new JTextField(20);
         searchButton = new JButton("Search");
         addProjectButton = new JButton("Add New Project");
-        addTaskButton = new JButton("Add New Task"); // Added Add New Task button
-        refreshButton = new JButton("Refresh"); // Added refresh button
+        addTaskButton = new JButton("Add New Task"); 
+        refreshButton = new JButton("Refresh"); 
         closeButton = new JButton("Close");
 
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(addProjectButton);
-        searchPanel.add(addTaskButton); // Added Add New Task button
+        searchPanel.add(addTaskButton);
         searchPanel.add(refreshButton);
         searchPanel.add(closeButton);
         add(searchPanel, BorderLayout.SOUTH);
@@ -106,7 +111,40 @@ public class ProjectPanel extends JPanel {
         JScrollPane mainScrollPane = new JScrollPane(mainTable);
         mainPanel.add(mainScrollPane, BorderLayout.CENTER);
         tabbedPane.insertTab("All Projects", null, mainPanel, null, 0);
+
+        // Add individual project tabs
+        Object[][] allProjects = SharedData.getAllProjectDetails();
+        for (Object[] project : allProjects) {
+            Integer projectId = (Integer) project[0];
+            String projectName = (String) project[1];
+            JPanel projectTabPanel = createTabContentPanel(project);
+            tabbedPane.addTab(projectName, projectTabPanel);
+
+            // Add double-click listener for individual project tabs
+            JTable projectTable = findTable(projectTabPanel);
+            projectTable.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        int row = projectTable.getSelectedRow();
+                        if (row != -1) {
+                            // Extract the selected task data
+                            Object[] taskData = new Object[projectTable.getColumnCount()];
+                            for (int i = 0; i < projectTable.getColumnCount(); i++) {
+                                taskData[i] = projectTable.getValueAt(projectTable.convertRowIndexToModel(row), i);
+                            }
+
+                            // Create and show the TaskInfoPanel in a dialog
+                            TaskInfoPanel taskInfoPanel = new TaskInfoPanel(taskData);
+                            JOptionPane.showMessageDialog(ProjectPanel.this, taskInfoPanel, "Task Info", JOptionPane.PLAIN_MESSAGE);
+                        }
+                    }
+                }
+            });
+        }
     }
+
+
 
     private JPanel createTabContentPanel(Object[] project) {
         JPanel panel = new JPanel(new BorderLayout());

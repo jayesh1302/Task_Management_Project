@@ -18,13 +18,13 @@ public class Dashboard extends JFrame {
 
     public Dashboard() {
         setTitle("Dashboard");
-        setSize(1600, 800);
+        setSize(1200, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
         JButton logoutButton = new JButton("Logout");
-        logoutButton.setForeground(Color.RED); // Set the text to red
-        logoutButton.setBackground(Color.WHITE); // Set the background color
+        logoutButton.setForeground(Color.RED); 
+        logoutButton.setBackground(Color.WHITE); 
         logoutButton.setFocusPainted(false);
         logoutButton.setFont(new Font("Arial", Font.BOLD, 12));
 
