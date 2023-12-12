@@ -29,6 +29,8 @@ import java.util.Map;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import TaskInfo.TaskInfoPanel;
+
 public class  ProjectPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JTextField searchField;
@@ -75,7 +77,7 @@ public class  ProjectPanel extends JPanel {
         // Add action listeners
         searchButton.addActionListener(e -> search());
         addProjectButton.addActionListener(e -> addNewProject());
-        addTaskButton.addActionListener(e -> showAddTaskDialog()); // Added action for Add New Task button
+        addTaskButton.addActionListener(e -> showAddTaskDialog());
         refreshButton.addActionListener(e -> refresh());
         closeButton.setVisible(false);
         addTaskButton.setEnabled(false);
@@ -409,13 +411,19 @@ public class  ProjectPanel extends JPanel {
     private void showAddTaskDialog() {
         int selectedIndex = tabbedPane.getSelectedIndex();
         if (selectedIndex >= 1) {
-            int projectId = (int) ((JPanel) tabbedPane.getComponentAt(selectedIndex)).getClientProperty("projectId");
-            TaskDialog taskDialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), projectId);
-            taskDialog.showDialog();
+            // Initialize an empty data array for a new task
+            Object[] emptyTaskData = new Object[]{null, null, "", "", "", "", "", "", "", "", "", ""};
+
+            // Create a new TaskInfoPanel with the empty data array
+            TaskInfoPanel taskInfoPanel = new TaskInfoPanel(emptyTaskData);
+
+            // Show the TaskInfoPanel in a dialog
+            JOptionPane.showMessageDialog(this, taskInfoPanel, "Add New Task", JOptionPane.PLAIN_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "Select a project to add a task to.");
         }
     }
+
     private void createProject(String projectName, String startDate) {
         try {
             URL url = new URL(Constants.BACKEND_URL + "/api/v1/project/create");

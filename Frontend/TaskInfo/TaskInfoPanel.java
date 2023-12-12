@@ -47,9 +47,12 @@ public class TaskInfoPanel extends JPanel {
 
 //        commentsTextArea = new JTextArea(5, textFieldColumnWidth);
         updateButton = new JButton("Update");
-
+        
+        assignedToField.setEditable(false);
+        requestedByField.setEditable(false);
+        
         // Correct data initialization
-        taskIdField.setText(taskData[0] != null ? taskData[0].toString() : "");
+        taskIdField.setText(taskData[0] != null ? taskData[1].toString() : "");
         startDateField.setText(taskData[2] != null ? taskData[2].toString() : "");
         endDateField.setText(taskData[3] != null ? taskData[3].toString() : "");
         dueDateField.setText(taskData[4] != null ? taskData[4].toString() : "");
@@ -93,6 +96,19 @@ public class TaskInfoPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         add(updateButton, gbc);
+        
+        updateButton.addActionListener(e -> {
+            int taskId = Integer.parseInt(taskIdField.getText());
+            String taskName = titleField.getText();
+            String taskPriority = priorityComboBox.getSelectedItem().toString();
+            String taskStatus = statusComboBox.getSelectedItem().toString();
+            String startDate = startDateField.getText();
+            String endDate = endDateField.getText();
+            String dueDate = dueDateField.getText();
+            String lastUpdated = lastUpdateField.getText();
+
+            services.UpdateTaskService.updateTask(taskId, taskName, taskPriority, taskStatus, startDate, endDate, dueDate, lastUpdated);
+        });
     }
 
     private JPanel createCommentPane(){
@@ -130,4 +146,7 @@ public class TaskInfoPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         add(field, gbc);
     }
+    
+    
+    
 }

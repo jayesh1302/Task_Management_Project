@@ -3,7 +3,6 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import dashboard.VisualizationPanel;
-import dashboard.DashboardPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -74,7 +73,7 @@ public class Dashboard extends JFrame {
         // Assuming each panel class is defined in its own file and they are all public
     	contentPanel.add(new ProjectPanel(), "Projects");
         contentPanel.add(new VisualizationPanel(), "Visualizations");
-        contentPanel.add(new DashboardPanel(), "All");
+//        contentPanel.add(new DashboardPanel(), "All");
         // Add the other panels here, similar to the above
         // contentPanel.add(new LastWeekPanel(), "Last week");
         // contentPanel.add(new LastMonthPanel(), "Last month");
