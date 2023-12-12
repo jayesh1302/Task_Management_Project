@@ -39,7 +39,7 @@ public class  ProjectPanel extends JPanel {
     private JButton addTaskButton;
     private Map<Integer, TableRowSorter<DefaultTableModel>> rowSorters;
 
-    private Map<String, Integer> openedTabs = new HashMap<>();
+    private ArrayList<String> openedTabs = new ArrayList<>();
     private DefaultTableModel mainTableModel; // Model for the main tab
 
     //    private ArrayList<Object[]> allProjects = new ArrayList<>();
@@ -59,7 +59,7 @@ public class  ProjectPanel extends JPanel {
             Integer projectId = (Integer) project[0];
             String projectName = (String) project[1];
             tabbedPane.addTab(projectName, createTabContentPanel(project));
-            openedTabs.put(projectName, i+1);
+            openedTabs.add(projectName);
         }
 
         add(tabbedPane, BorderLayout.CENTER);
@@ -143,10 +143,10 @@ public class  ProjectPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 String selectedProject = (String)mainTable.getValueAt(mainTable.getSelectedRow() ,1);
                 if(e.getClickCount() == 2){
-                    if(openedTabs.containsKey(selectedProject)){
-
-                        System.out.println("in here");
-                        tabbedPane.setSelectedIndex(openedTabs.get(selectedProject));
+                    int idx = openedTabs.indexOf(selectedProject);
+                    if( idx != -1){
+                        System.out.println(idx);
+                        tabbedPane.setSelectedIndex(idx+1);
                     }else{
 
                         int tabs = tabbedPane.getTabCount();
@@ -159,7 +159,7 @@ public class  ProjectPanel extends JPanel {
                             }
                         }
                         tabbedPane.addTab((String)project[1], createTabContentPanel(project));
-                        openedTabs.put((String)project[1], tabs);
+                        openedTabs.add((String)project[1]);
                     }
                 }
             }
