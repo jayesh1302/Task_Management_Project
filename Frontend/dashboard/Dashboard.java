@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import loginpage.LoginPage;
+import shared.JwtStorage;
 
 public class Dashboard extends JFrame {
     private CardLayout cardLayout = new CardLayout();
@@ -26,19 +27,11 @@ public class Dashboard extends JFrame {
         logoutButton.setBackground(Color.WHITE); // Set the background color
         logoutButton.setFocusPainted(false);
         logoutButton.setFont(new Font("Arial", Font.BOLD, 12));
-        logoutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Close the current dashboard window
-                dispose();
-                // Open the login page
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        new LoginPage(); // Assuming LoginPage has a constructor that sets up the UI
-                    }
-                });
-            }
+
+        logoutButton.addActionListener((event) -> {
+            JwtStorage.clearJwtToken();
+            dispose();
+            SwingUtilities.invokeLater(LoginPage::new);
         });
 
         // Assuming there's a panel or container for the logoutButton at the bottom left
