@@ -156,8 +156,34 @@ public class  ProjectPanel extends JPanel {
                                 project = p;
                             }
                         }
-                        tabbedPane.addTab((String)project[1], createTabContentPanel(project));
+                        JPanel projectPane = createTabContentPanel(project);
+                        tabbedPane.addTab((String)project[1], projectPane);
                         openedTabs.add((String)project[1]);
+                        JTable projectTable = findTable(projectPane);
+
+                        projectTable.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                if (e.getClickCount() == 2) {
+                                    int row = projectTable.getSelectedRow();
+                                    System.out.println("check row" + row);
+
+                                    if (row != -1) {
+                                        System.out.println("in here" + row);
+                                        // Extract the selected task data
+                                        Object[] taskData = new Object[projectTable.getColumnCount()];
+                                        for (int i = 0; i < projectTable.getColumnCount(); i++) {
+                                            taskData[i] = projectTable.getValueAt(projectTable.convertRowIndexToModel(row), i);
+                                        }
+
+                                        // Create and show the TaskInfoPanel in a dialog
+                                        TaskInfoPanel taskInfoPanel = new TaskInfoPanel(taskData);
+                                        JOptionPane.showMessageDialog(ProjectPanel.this, taskInfoPanel, "Task Info", JOptionPane.PLAIN_MESSAGE);
+                                    }
+                                }
+                            }
+                        });
+
                     }
                 }
             }
@@ -177,7 +203,10 @@ public class  ProjectPanel extends JPanel {
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
                         int row = projectTable.getSelectedRow();
+                        System.out.println("check row" + row);
+
                         if (row != -1) {
+                            System.out.println("in here" + row);
                             // Extract the selected task data
                             Object[] taskData = new Object[projectTable.getColumnCount()];
                             for (int i = 0; i < projectTable.getColumnCount(); i++) {

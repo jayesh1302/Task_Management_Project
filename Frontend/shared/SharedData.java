@@ -68,6 +68,51 @@ public class SharedData {
         }
     }
 
+    public static Object[][] getAllComments(String taskId) {
+        System.out.println(JwtStorage.getJwtToken());
+        String urlString = Constants.BACKEND_URL + "/api/v1/task/getComments/"+ taskId;
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Authorization", "Bearer " + JwtStorage.getJwtToken());
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+            String output;
+            StringBuilder response = new StringBuilder();
+            while ((output = br.readLine()) != null) {
+                response.append(output);
+            }
+
+            conn.disconnect();
+
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            JSONArray comments = jsonResponse.getJSONArray("data");
+            System.out.println(comments.length());
+            Object[][] allComments = new Object[comments.length()][];
+            for (int i = 0; i < comments.length(); i++) {
+                JSONObject comment = comments.getJSONObject(i);
+                String commentText = comment.getString("comment");
+                String commentDate = comment.getString("commentDate");
+                String user = comment.getString("user");
+
+
+                allComments[i] = new Object[]{commentText, commentDate, user};
+            }
+            System.out.println("check length here" + allComments.length);
+            return allComments;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Object[][]{}; // Return an empty array in case of an error
+        }
+    }
+
     public static Object[][] getTasksByProjectId(int projectId) {
         String urlString = Constants.BACKEND_URL + "/api/v1/task/getByProjectId/" + projectId;
 

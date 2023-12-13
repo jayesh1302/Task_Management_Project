@@ -1,5 +1,7 @@
 package TaskInfo;
 
+import shared.SharedData;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -19,7 +21,15 @@ public class TaskInfoPanel extends JPanel {
 //    private JTextArea commentsTextArea;
     private JButton updateButton;
 
+    private Object[][] comments;
+
+    private void fetchAllComments(Integer taskId){
+
+    }
+
     public TaskInfoPanel(Object[] taskData) {
+        comments = SharedData.getAllComments(taskData[1].toString());
+        System.out.println("COMMENTS = " +comments.length);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -41,7 +51,7 @@ public class TaskInfoPanel extends JPanel {
         assignedToField = new JTextField(textFieldColumnWidth);
         requestedByField = new JTextField(textFieldColumnWidth);
         commentsTextArea = new JScrollPane();
-        commentsTextArea.setPreferredSize(new Dimension(400, 200));
+        commentsTextArea.setSize(new Dimension(400, 200));
         commentsTextArea.setBackground(Color.WHITE);
         commentsTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -111,28 +121,31 @@ public class TaskInfoPanel extends JPanel {
         });
     }
 
-    private JPanel createCommentPane(){
-        JPanel cPanel = new JPanel(new GridLayout(0,1));
+    private JPanel createCommentPane() {
+        JPanel cPanel = new JPanel();
+        cPanel.setLayout(new BoxLayout(cPanel, BoxLayout.Y_AXIS));
+        cPanel.setBorder(new EmptyBorder(5, 5, 5, 5)); // Add a small border to the entire panel
 
-        for(int i=0; i<20; i++){
+        for (int i = 0; i < comments.length; i++) {
             JPanel comment = new JPanel(new BorderLayout());
             comment.setBackground(Color.white);
+            comment.setBorder(new EmptyBorder(5, 5, 5, 5)); // Adjust the border for each comment
 
-            JTextArea commentText = new JTextArea("Add comment here Add comment here Add comment here Add comment here");
-            comment.setBorder(new EmptyBorder(10,10,0,10));
+            JTextArea commentText = new JTextArea(comments[i][0].toString());
             commentText.setEditable(false);
             commentText.setLineWrap(true);
             commentText.setWrapStyleWord(true);
 
             commentText.setColumns(20);
 
-            comment.add(new JLabel("Date: "), BorderLayout.NORTH);
-            comment.add(commentText, BorderLayout.CENTER);
+            comment.add(new JLabel(comments[i][1].toString()), BorderLayout.NORTH);
+            comment.add(commentText);
 
             cPanel.add(comment);
         }
         return cPanel;
     }
+
 
     private void addFieldWithLabel(String labelText, Component field, int yPos, GridBagConstraints gbc) {
         JLabel label = new JLabel(labelText);
