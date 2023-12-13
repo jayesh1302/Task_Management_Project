@@ -169,7 +169,7 @@ public class  ProjectPanel extends JPanel {
             String projectName = (String) project[1];
             JPanel projectTabPanel = createTabContentPanel(project);
             tabbedPane.addTab(projectName, projectTabPanel);
-
+            openedTabs.add(projectName);
             // Add double-click listener for individual project tabs
             JTable projectTable = findTable(projectTabPanel);
             projectTable.addMouseListener(new MouseAdapter() {
