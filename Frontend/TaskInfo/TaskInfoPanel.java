@@ -28,8 +28,7 @@ public class TaskInfoPanel extends JPanel {
     }
 
     public TaskInfoPanel(Object[] taskData) {
-        comments = SharedData.getAllComments(taskData[1].toString());
-        System.out.println("COMMENTS = " +comments.length);
+        if(taskData[1] != null) comments = SharedData.getAllComments(taskData[1].toString());
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -81,7 +80,8 @@ public class TaskInfoPanel extends JPanel {
         }
         assignedToField.setText(taskData[10] != null ? taskData[10].toString() : "");
         requestedByField.setText(taskData[11] != null ? taskData[11].toString() : "");
-        commentsTextArea.setViewportView(createCommentPane());
+        if(taskData[1] != null)
+            commentsTextArea.setViewportView(createCommentPane());
 
         // Ensure comments are filled correctly
 //        commentsTextArea.setText(taskData[8] != null ? taskData[8].toString() : "here");
@@ -97,7 +97,8 @@ public class TaskInfoPanel extends JPanel {
         addFieldWithLabel("PRIORITY:", priorityComboBox, 7, gbc);
         addFieldWithLabel("ASSIGNED TO:", assignedToField, 8, gbc);
         addFieldWithLabel("REQUESTED BY:", requestedByField, 9, gbc);
-        addFieldWithLabel("COMMENTS:", commentsTextArea, 10, gbc);
+        if(taskData[1] != null )
+            addFieldWithLabel("COMMENTS:", commentsTextArea, 10, gbc);
 
         // Adding the update button at the bottom
         gbc.gridwidth = 2;
