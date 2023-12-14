@@ -1,17 +1,20 @@
 package TaskInfo;
 
+import com.toedter.calendar.JDateChooser;
 import shared.SharedData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class TaskInfoPanel extends JPanel {
     private JTextField taskIdField;
-    private JTextField startDateField;
-    private JTextField endDateField;
-    private JTextField dueDateField;
-    private JTextField lastUpdateField;
+    private JDateChooser startDateField;
+    private JDateChooser endDateField;
+    private JDateChooser dueDateField;
     private JTextField titleField;
     private JComboBox<String> statusComboBox;
     private JComboBox<String> priorityComboBox;
@@ -23,11 +26,18 @@ public class TaskInfoPanel extends JPanel {
 
     private Object[][] comments;
 
-    private void fetchAllComments(Integer taskId){
-
+    private Date parseDate(String dateString)  {
+        try{
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            return dateFormat.parse(dateString);
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public TaskInfoPanel(Object[] taskData) {
+
+    public TaskInfoPanel(Object[] taskData)  {
         if(taskData[1] != null) comments = SharedData.getAllComments(taskData[1].toString());
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -40,10 +50,9 @@ public class TaskInfoPanel extends JPanel {
         // Initialize components with a wider column width
         int textFieldColumnWidth = 30;
         taskIdField = new JTextField(textFieldColumnWidth);
-        startDateField = new JTextField(textFieldColumnWidth);
-        endDateField = new JTextField(textFieldColumnWidth);
-        dueDateField = new JTextField(textFieldColumnWidth);
-        lastUpdateField = new JTextField(textFieldColumnWidth);
+        startDateField = new JDateChooser();
+        endDateField = new JDateChooser();
+        dueDateField = new JDateChooser();
         titleField = new JTextField(textFieldColumnWidth);
         statusComboBox = new JComboBox<>(new String[]{"IN_PROGRESS", "RESOLVED", "UNRESOLVED", "ESCALATED"});
         priorityComboBox = new JComboBox<>(new String[]{"LOW", "MEDIUM", "HIGH"});
@@ -59,13 +68,15 @@ public class TaskInfoPanel extends JPanel {
         
         assignedToField.setEditable(false);
         requestedByField.setEditable(false);
-        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         // Correct data initialization
         taskIdField.setText(taskData[0] != null ? taskData[1].toString() : "");
-        startDateField.setText(taskData[2] != null ? taskData[2].toString() : "");
-        endDateField.setText(taskData[3] != null ? taskData[3].toString() : "");
-        dueDateField.setText(taskData[4] != null ? taskData[4].toString() : "");
-        lastUpdateField.setText(taskData[5] != null ? taskData[5].toString() : "");
+        System.out.println(taskData[2].toString());
+        startDateField.setDate(taskData[2].equals("") ? null : parseDate(taskData[2].toString()));
+//        startDateField.setText(taskData[2] != null ? taskData[2].toString() : "");
+        endDateField.setDate(taskData[3].equals("") ? null : parseDate(taskData[3].toString()));
+        dueDateField.setDate(taskData[4].equals("") ? null : parseDate(taskData[2].toString()));
         titleField.setText(taskData[7] != null ? taskData[7].toString() : "");
         // Set the status dropdown selection correctly
         if (taskData[6] != null) {
@@ -86,12 +97,12 @@ public class TaskInfoPanel extends JPanel {
         // Ensure comments are filled correctly
 //        commentsTextArea.setText(taskData[8] != null ? taskData[8].toString() : "here");
 
+
         // Add components with their labels
         addFieldWithLabel("TASK ID:", taskIdField, 0, gbc);
         addFieldWithLabel("START DATE:", startDateField, 1, gbc);
         addFieldWithLabel("END DATE:", endDateField, 2, gbc);
         addFieldWithLabel("DUE DATE:", dueDateField, 3, gbc);
-        addFieldWithLabel("LAST UPDATE:", lastUpdateField, 4, gbc);
         addFieldWithLabel("TITLE:", titleField, 5, gbc);
         addFieldWithLabel("STATUS:", statusComboBox, 6, gbc);
         addFieldWithLabel("PRIORITY:", priorityComboBox, 7, gbc);
@@ -113,12 +124,11 @@ public class TaskInfoPanel extends JPanel {
             String taskName = titleField.getText();
             String taskPriority = priorityComboBox.getSelectedItem().toString();
             String taskStatus = statusComboBox.getSelectedItem().toString();
-            String startDate = startDateField.getText();
-            String endDate = endDateField.getText();
-            String dueDate = dueDateField.getText();
-            String lastUpdated = lastUpdateField.getText();
-
-            services.UpdateTaskService.updateTask(taskId, taskName, taskPriority, taskStatus, startDate, endDate, dueDate, lastUpdated);
+            Date startDate = startDateField.getDate();
+            Date endDate = endDateField.getDate();
+            Date dueDate = dueDateField.getDate();
+            System.out.println("date updated" + startDate);
+            services.UpdateTaskService.updateTask(taskId, taskName, taskPriority, taskStatus, startDate, endDate, dueDate);
         });
     }
 
