@@ -1,11 +1,19 @@
 package TaskInfo;
 
 import com.toedter.calendar.JDateChooser;
+import dashboard.ProjectPanel;
+import dashboard.TaskDialog;
+import shared.JwtStorage;
 import shared.SharedData;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,8 +29,9 @@ public class TaskInfoPanel extends JPanel {
     private JTextField assignedToField;
     private JTextField requestedByField;
     private JScrollPane commentsTextArea;
-//    private JTextArea commentsTextArea;
     private JButton updateButton;
+
+    private JPanel addCommentPanel;
 
     private Object[][] comments;
 
@@ -59,7 +68,8 @@ public class TaskInfoPanel extends JPanel {
         assignedToField = new JTextField(textFieldColumnWidth);
         requestedByField = new JTextField(textFieldColumnWidth);
         commentsTextArea = new JScrollPane();
-        commentsTextArea.setSize(new Dimension(400, 200));
+        commentsTextArea.setPreferredSize(new Dimension(400, 200));
+
         commentsTextArea.setBackground(Color.WHITE);
         commentsTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -72,9 +82,7 @@ public class TaskInfoPanel extends JPanel {
 
         // Correct data initialization
         taskIdField.setText(taskData[0] != null ? taskData[1].toString() : "");
-        System.out.println(taskData[2].toString());
         startDateField.setDate(taskData[2].equals("") ? null : parseDate(taskData[2].toString()));
-//        startDateField.setText(taskData[2] != null ? taskData[2].toString() : "");
         endDateField.setDate(taskData[3].equals("") ? null : parseDate(taskData[3].toString()));
         dueDateField.setDate(taskData[4].equals("") ? null : parseDate(taskData[2].toString()));
         titleField.setText(taskData[7] != null ? taskData[7].toString() : "");
@@ -110,11 +118,25 @@ public class TaskInfoPanel extends JPanel {
         addFieldWithLabel("REQUESTED BY:", requestedByField, 9, gbc);
         if(taskData[1] != null )
             addFieldWithLabel("COMMENTS:", commentsTextArea, 10, gbc);
+        if(taskData[1] != null) {
+            addCommentPanel = new JPanel();
+            JTextField commentField = new JTextField();
+            commentField.setColumns(20);
+            addCommentPanel.add(commentField);
+            JButton sendBtn = new JButton("Send");
+            sendBtn.addActionListener(e -> {
+                String comment = commentField.getText();
+                addComment(comment, taskData[1].toString());
+            });
+            addCommentPanel.add(sendBtn);
+//            add(addCommentPanel);
+            addFieldWithLabel("", addCommentPanel, 11, gbc);
+        }
 
         // Adding the update button at the bottom
         gbc.gridwidth = 2;
         gbc.gridx = 0;
-        gbc.gridy = 11;
+        gbc.gridy = 12;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         add(updateButton, gbc);
@@ -127,8 +149,11 @@ public class TaskInfoPanel extends JPanel {
             Date startDate = startDateField.getDate();
             Date endDate = endDateField.getDate();
             Date dueDate = dueDateField.getDate();
-            System.out.println("date updated" + startDate);
-            services.UpdateTaskService.updateTask(taskId, taskName, taskPriority, taskStatus, startDate, endDate, dueDate);
+            boolean success = services.UpdateTaskService.updateTask(taskId, taskName, taskPriority, taskStatus, startDate, endDate, dueDate);
+            if(success){
+                SwingUtilities.getWindowAncestor((JButton)e.getSource()).dispose();
+                ProjectPanel.refresh();
+            }
         });
     }
 
@@ -136,7 +161,6 @@ public class TaskInfoPanel extends JPanel {
         JPanel cPanel = new JPanel();
         cPanel.setLayout(new BoxLayout(cPanel, BoxLayout.Y_AXIS));
         cPanel.setBorder(new EmptyBorder(5, 5, 5, 5)); // Add a small border to the entire panel
-
         for (int i = 0; i < comments.length; i++) {
             JPanel comment = new JPanel(new BorderLayout());
             comment.setBackground(Color.white);
@@ -170,7 +194,39 @@ public class TaskInfoPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         add(field, gbc);
     }
-    
+
+    private void addComment(String comment, String taskId) {
+        String jwtToken = JwtStorage.getJwtToken();
+        try {
+
+            URL url = new URL("http://localhost:8080/api/v1/task/addComment/" + taskId);
+            System.out.println(url);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Authorization", "Bearer " + jwtToken);
+            conn.setDoOutput(true);
+
+            String jsonInputString = String.format("{\"comment\": \"%s\"}", comment);
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                comments = SharedData.getAllComments(taskId);
+                commentsTextArea.setViewportView(createCommentPane());
+                JScrollBar verticalScrollBar = commentsTextArea.getVerticalScrollBar();
+                verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+            } else {
+                System.out.println("Error adding comment");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     
     
 }

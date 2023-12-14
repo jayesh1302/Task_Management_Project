@@ -12,7 +12,7 @@ import java.util.Date;
 
 public class UpdateTaskService {
 
-    public static void updateTask(int taskId, String taskName, String taskPriority, String taskStatus, 
+    public static boolean updateTask(int taskId, String taskName, String taskPriority, String taskStatus,
                                   Date startDate, Date endDate, Date dueDate) {
     	String jwtToken = JwtStorage.getJwtToken();
         try {
@@ -46,11 +46,14 @@ public class UpdateTaskService {
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 System.out.println("Task updated successfully.");
+                return true;
             } else {
                 System.out.println("PUT request not worked");
+                return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 }

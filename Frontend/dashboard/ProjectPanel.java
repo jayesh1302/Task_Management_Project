@@ -37,17 +37,17 @@ import java.util.Date;
 import TaskInfo.TaskInfoPanel;
 
 public class  ProjectPanel extends JPanel {
-    private JTabbedPane tabbedPane;
+    private static JTabbedPane tabbedPane;
     private JTextField searchField;
     private JButton searchButton;
     private JButton refreshButton; // New button for refreshing
     private JButton closeButton;
     private JButton addProjectButton;
     private JButton addTaskButton;
-    private Map<Integer, TableRowSorter<DefaultTableModel>> rowSorters;
+    private static Map<Integer, TableRowSorter<DefaultTableModel>> rowSorters;
 
     private ArrayList<String> openedTabs = new ArrayList<>();
-    private DefaultTableModel mainTableModel; // Model for the main tab
+    private static DefaultTableModel mainTableModel; // Model for the main tab
 
     //    private ArrayList<Object[]> allProjects = new ArrayList<>();
     Object[][] allProjects;
@@ -203,10 +203,8 @@ public class  ProjectPanel extends JPanel {
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
                         int row = projectTable.getSelectedRow();
-                        System.out.println("check row" + row);
 
                         if (row != -1) {
-                            System.out.println("in here" + row);
                             // Extract the selected task data
                             Object[] taskData = new Object[projectTable.getColumnCount()];
                             for (int i = 0; i < projectTable.getColumnCount(); i++) {
@@ -225,7 +223,7 @@ public class  ProjectPanel extends JPanel {
 
 
 
-    private JPanel createTabContentPanel(Object[] project) {
+    private static JPanel createTabContentPanel(Object[] project) {
         JPanel panel = new JPanel(new BorderLayout());
         JPanel projectDetails = new JPanel(new GridLayout(1, 4));
         int projectId = (int) project[0];
@@ -346,7 +344,7 @@ public class  ProjectPanel extends JPanel {
 
 
     // New method for refreshing the project list
-    void refresh() {
+    public static void refresh() {
         int selectedIndex = tabbedPane.getSelectedIndex();
 
         if (selectedIndex == 0) {
