@@ -13,7 +13,7 @@ import java.util.Date;
 public class newTaskService {
 
     public static boolean createTask(String taskName, String taskPriority, String taskStatus,
-        Date startDate, Date endDate, Date dueDate) {
+        Date startDate, Date endDate, Date dueDate, int projectId, int assignedTo, int requestedBy) {
         String jwtToken = JwtStorage.getJwtToken();
         try {
             URL url = new URL("http://localhost:8080/api/v1/task/create"); 
@@ -30,10 +30,11 @@ public class newTaskService {
             String lastUpdatedString = dateFormat.format(new Date());
 
             String jsonInputString = String.format(
-                "{\"taskName\": \"%s\", \"taskPriority\": \"%s\", \"taskStatus\": \"%s\", " +
-                "\"startDate\": \"%s\", \"endDate\": \"%s\", \"dueDate\": \"%s\", \"lastUpdated\": \"%s\", " +
-                "\"projectId\": 1, \"assignedTo\": 1, \"assignedBy\": 1}",
-                taskName, taskPriority, taskStatus, startDateString, endDateString, dueDateString, lastUpdatedString);
+                    "{\"taskName\": \"%s\", \"taskPriority\": \"%s\", \"taskStatus\": \"%s\", " +
+                    "\"startDate\": \"%s\", \"endDate\": \"%s\", \"dueDate\": \"%s\", \"lastUpdated\": \"%s\", " +
+                    "\"projectId\": %d, \"assignedTo\": %d, \"assignedBy\": %d}",
+                    taskName, taskPriority, taskStatus, startDateString, endDateString, dueDateString, 
+                    lastUpdatedString, projectId, assignedTo, requestedBy);
 
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);

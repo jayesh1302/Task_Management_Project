@@ -30,7 +30,7 @@ public class NewTaskInfoPanel extends JPanel {
     private JTextField requestedByField;
     private JScrollPane commentsTextArea;
     private JButton addTaskButton;
-    private JTextField projectId;
+    private JTextField projectIdField;
 
     private JPanel addCommentPanel;
 
@@ -63,7 +63,7 @@ public class NewTaskInfoPanel extends JPanel {
         startDateField = new JDateChooser();
         endDateField = new JDateChooser();
         dueDateField = new JDateChooser();
-        projectId = new JTextField(textFieldColumnWidth);
+        projectIdField = new JTextField(textFieldColumnWidth);
         titleField = new JTextField(textFieldColumnWidth);
         statusComboBox = new JComboBox<>(new String[]{"IN_PROGRESS", "RESOLVED", "UNRESOLVED", "ESCALATED"});
         priorityComboBox = new JComboBox<>(new String[]{"LOW", "MEDIUM", "HIGH"});
@@ -100,8 +100,14 @@ public class NewTaskInfoPanel extends JPanel {
         } else {
         	priorityComboBox.setSelectedIndex(-1); // No selection
         }
+        
+        projectIdField.setText(taskData[12] != null ? taskData[12].toString() : "");
         assignedToField.setText(taskData[10] != null ? taskData[10].toString() : "");
         requestedByField.setText(taskData[11] != null ? taskData[11].toString() : "");
+        System.out.println("**************************");
+        System.out.println(projectIdField);
+        System.out.println(assignedToField);
+        System.out.println(assignedToField);
         if(taskData[1] != null)
             commentsTextArea.setViewportView(createCommentPane());
 
@@ -115,7 +121,7 @@ public class NewTaskInfoPanel extends JPanel {
         addFieldWithLabel("END DATE:", endDateField, 2, gbc);
         addFieldWithLabel("DUE DATE:", dueDateField, 3, gbc);
         addFieldWithLabel("TITLE:", titleField, 5, gbc);
-        addFieldWithLabel("PROJECT ID:", projectId, 6, gbc);
+        addFieldWithLabel("PROJECT ID:", projectIdField, 6, gbc);
         addFieldWithLabel("STATUS:", statusComboBox, 7, gbc);
         addFieldWithLabel("PRIORITY:", priorityComboBox, 8, gbc);
         addFieldWithLabel("ASSIGNED TO:", assignedToField, 9, gbc);
@@ -147,17 +153,28 @@ public class NewTaskInfoPanel extends JPanel {
         add(addTaskButton, gbc);
         
         addTaskButton.addActionListener(e -> {
-            int taskId = Integer.parseInt("1");
             String taskName = titleField.getText();
             String taskPriority = priorityComboBox.getSelectedItem().toString();
             String taskStatus = statusComboBox.getSelectedItem().toString();
             Date startDate = startDateField.getDate();
             Date endDate = endDateField.getDate();
             Date dueDate = dueDateField.getDate();
-            boolean success = services.newTaskService.createTask(taskName, taskPriority, taskStatus, startDate, endDate, dueDate);
-            if(success){
-                SwingUtilities.getWindowAncestor((JButton)e.getSource()).dispose();
-                ProjectPanel.refresh();
+            
+            try {
+                int projectId = Integer.parseInt(projectIdField.getText().trim());
+                int assignedTo = Integer.parseInt(assignedToField.getText().trim());
+                int requestedBy = Integer.parseInt(requestedByField.getText().trim());
+
+                boolean success = services.newTaskService.createTask(taskName, taskPriority, taskStatus, 
+                                                                     startDate, endDate, dueDate, 
+                                                                     projectId, assignedTo, requestedBy);
+                if(success){
+                    SwingUtilities.getWindowAncestor((JButton)e.getSource()).dispose();
+                    ProjectPanel.refresh();
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Please enter valid numeric values for Project ID, Assigned To, and Requested By fields.",
+                                              "Input Error", JOptionPane.ERROR_MESSAGE);
             }
         });
     }
