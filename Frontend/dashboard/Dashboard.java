@@ -71,7 +71,6 @@ public class Dashboard extends JFrame {
     }
 
     private void setupCards() {
-        // Assuming each panel class is defined in its own file and they are all public
     	contentPanel.add(new ProjectPanel(), "Projects");
         contentPanel.add(new VisualizationPanel(), "Visualizations");
 //        contentPanel.add(new DashboardPanel(), "All");
@@ -85,18 +84,22 @@ public class Dashboard extends JFrame {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                       boolean isSelected, boolean cellHasFocus) {
+        	Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             label.setBorder(new EmptyBorder(10, 10, 10, 10));
             if (isSelected) {
                 label.setBackground(new Color(173, 216, 230));
+                if (value.equals("Last week") || value.equals("Last month") || value.equals("Last year")) {
+                	c.setForeground(Color.GRAY); // Set text color to grey for specific items
+                }
             } else {
                 label.setBackground(Color.WHITE);
+                if (value.equals("Last week") || value.equals("Last month") || value.equals("Last year")) {
+                	c.setForeground(Color.GRAY); // Set text color to grey for specific items
+                }
             }
             return label;
         }
+       
     }
-
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(Dashboard::new);
-//    }
 }
