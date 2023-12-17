@@ -155,9 +155,13 @@ public class VisualizationPanel extends JPanel {
         refreshVisualization();
 
         // Add refresh button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton refreshButton = new JButton("Refresh");
-        refreshButton.addActionListener(e -> refreshVisualization());
-        add(refreshButton, BorderLayout.SOUTH);
+
+        refreshButton.setPreferredSize(new Dimension(90, 22)); 
+        buttonPanel.add(refreshButton);
+        this.add(buttonPanel, BorderLayout.SOUTH);
+        
 
         add(tabbedPane);
     }
