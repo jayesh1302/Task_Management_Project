@@ -12,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import com.toedter.calendar.JDateChooser;
 
+import TaskInfo.NewTaskInfoPanel;
 import TaskInfo.TaskInfoPanel;
 
 import java.awt.*;
@@ -446,13 +447,13 @@ public class  ProjectPanel extends JPanel {
         int selectedIndex = tabbedPane.getSelectedIndex();
         if (selectedIndex >= 1) {
             // Initialize an empty data array for a new task
-            Object[] emptyTaskData = new Object[]{null, null, "", "", "", "", "", "", "", "", "", ""};
+            Object[] emptyTaskData = new Object[]{null, null, "", "", "", "", "", "", "", "", "", "", ""};
 
             // Create a new TaskInfoPanel with the empty data array
-            TaskInfoPanel taskInfoPanel = new TaskInfoPanel(emptyTaskData);
+            NewTaskInfoPanel newTaskInfoPanel = new NewTaskInfoPanel(emptyTaskData);
 
             // Show the TaskInfoPanel in a dialog
-            JOptionPane.showMessageDialog(this, taskInfoPanel, "Add New Task", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(this, newTaskInfoPanel, "Add New Task", JOptionPane.PLAIN_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "Select a project to add a task to.");
         }
