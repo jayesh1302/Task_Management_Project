@@ -35,12 +35,12 @@ public class VisualizationPanel extends JPanel {
         ChartPanel statusPanel = createChartPanel(createStatusDataset(projectId), "Task Status");
         ChartPanel priorityPanel = createChartPanel(createPriorityDataset(projectId), "Task Priority");
         ChartPanel assignedToPanel = createChartPanel(createAssignedToDataset(projectId), "Assigned To");
-        ChartPanel completedByPanel = createChartPanel(createCompletedByDataset(projectId), "Completed By");
+        ChartPanel requestedByPanel = createChartPanel(createRequestedByDataset(projectId), "Completed By");
 
         panel.add(statusPanel);
         panel.add(priorityPanel);
         panel.add(assignedToPanel);
-        panel.add(completedByPanel);
+        panel.add(requestedByPanel);
 
         return panel;
     }
@@ -93,17 +93,15 @@ public class VisualizationPanel extends JPanel {
         return dataset;
     }
 
-    private PieDataset createCompletedByDataset(int projectId) {
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        Map<String, Integer> completedByCount = new HashMap<>();
+    private PieDataset createRequestedByDataset(int projectId) {
+    	DefaultPieDataset dataset = new DefaultPieDataset();
+        Map<String, Integer> requestedByCount = new HashMap<>();
         Object[][] taskDetails = SharedData.getTasksByProjectId(projectId);
         for (Object[] row : taskDetails) {
-            if ("Resolved".equals(row[3])) {
-                String completedBy = (String) row[7];
-                completedByCount.put(completedBy, completedByCount.getOrDefault(completedBy, 0) + 1);
-            }
+            String requestedBy = (String) row[11];
+            requestedByCount.put(requestedBy, requestedByCount.getOrDefault(requestedBy, 0) + 1);
         }
-        completedByCount.forEach(dataset::setValue);
+        requestedByCount.forEach(dataset::setValue);
         return dataset;
     }
 

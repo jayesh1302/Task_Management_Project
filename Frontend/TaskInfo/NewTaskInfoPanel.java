@@ -141,7 +141,7 @@ public class NewTaskInfoPanel extends JPanel {
         // Adding the update button at the bottom
         gbc.gridwidth = 2;
         gbc.gridx = 0;
-        gbc.gridy = 12;
+        gbc.gridy = 13;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         add(addTaskButton, gbc);
