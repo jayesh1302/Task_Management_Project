@@ -7,14 +7,13 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="Frontend"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/jcalendar-1.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/json-20231013.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/commons-codec-1.10.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/httpclient-4.5.6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/httpcore-4.4.10.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/jfreechart.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/jfreechart-1.0.19-demo.jar"/>
-	<classpathentry kind="lib" path="C:/Users/jayes/Downloads/Task_JARs/jcommon-1.0.24.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/jcalendar-1.4.jar/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/httpcore-4.4.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/httpclient-4.5.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Deepika/Downloads/org.json.jar~1/org.json.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
