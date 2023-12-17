@@ -1,18 +1,17 @@
 package dashboard;
 
 import javax.swing.*;
-
-import shared.Constants;
-import shared.JwtStorage;
-import services.CreateTask;
-import dashboard.ProjectPanel;
-
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.nio.charset.StandardCharsets;
+
+import shared.Constants;
+import shared.JwtStorage;
+import services.CreateTask;
 
 public class TaskDialog extends JDialog {
     private JTextField taskNameField;
@@ -20,6 +19,7 @@ public class TaskDialog extends JDialog {
     private JComboBox<String> taskStatusComboBox;
     private JTextField endDateField;
     private JTextField dueDateField;
+    private JButton addButton;
 
     public TaskDialog(JFrame parent, int projectId) {
         super(parent, "Add New Task", true);
@@ -35,6 +35,11 @@ public class TaskDialog extends JDialog {
         endDateField = new JTextField(10);
         dueDateField = new JTextField(10);
 
+        // Add DocumentListener to text fields
+        taskNameField.getDocument().addDocumentListener(new FieldDocumentListener());
+        endDateField.getDocument().addDocumentListener(new FieldDocumentListener());
+        dueDateField.getDocument().addDocumentListener(new FieldDocumentListener());
+
         inputPanel.add(new JLabel("Task Name:"));
         inputPanel.add(taskNameField);
         inputPanel.add(new JLabel("Task Priority:"));
@@ -47,8 +52,10 @@ public class TaskDialog extends JDialog {
         inputPanel.add(dueDateField);
 
         JPanel buttonPanel = new JPanel();
-        JButton addButton = new JButton("Add Task");
+        addButton = new JButton("Add Task");
         JButton cancelButton = new JButton("Cancel");
+
+        addButton.setEnabled(false); // Initially disable the button
 
         addButton.addActionListener(new ActionListener() {
             @Override
@@ -119,5 +126,31 @@ public class TaskDialog extends JDialog {
 
     public void showDialog() {
         setVisible(true);
+    }
+
+    // DocumentListener to trigger validation when text fields change
+    private class FieldDocumentListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            validateFields();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            validateFields();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            validateFields();
+        }
+
+        private void validateFields() {
+            boolean enableButton = !taskNameField.getText().isEmpty()
+                    && !endDateField.getText().isEmpty()
+                    && !dueDateField.getText().isEmpty();
+
+            addButton.setEnabled(enableButton);
+        }
     }
 }

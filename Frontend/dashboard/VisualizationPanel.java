@@ -54,15 +54,14 @@ public class VisualizationPanel extends JPanel {
 
     private PieDataset createStatusDataset(int projectId) {
         DefaultPieDataset dataset = new DefaultPieDataset();
-        for (Object[] row : SharedData.rowData) {
-            if (projectId == 0 || (int) row[0] == projectId) {
-                String status = (String) row[6];
-                Comparable<?> statusKey = status;
-                if (dataset.getIndex(statusKey) >= 0) {
-                    dataset.setValue(statusKey, dataset.getValue(statusKey).intValue() + 1);
-                } else {
-                    dataset.setValue(statusKey, 1);
-                }
+        Object[][] taskDetails = SharedData.getTasksByProjectId(projectId);
+        for (Object[] row : taskDetails) {
+            String status = (String) row[6];
+            Comparable<?> statusKey = status;
+            if (dataset.getIndex(statusKey) >= 0) {
+                dataset.setValue(statusKey, dataset.getValue(statusKey).intValue() + 1);
+            } else {
+                dataset.setValue(statusKey, 1);
             }
         }
         return dataset;
@@ -70,14 +69,13 @@ public class VisualizationPanel extends JPanel {
 
     private PieDataset createPriorityDataset(int projectId) {
         DefaultPieDataset dataset = new DefaultPieDataset();
-        for (Object[] row : SharedData.rowData) {
-            if (projectId == 0 || (int) row[0] == projectId) {
-                String priority = (String) row[9];
-                if (dataset.getIndex(priority) >= 0) {
-                    dataset.setValue(priority, dataset.getValue(priority).intValue() + 1);
-                } else {
-                    dataset.setValue(priority, 1);
-                }
+        Object[][] taskDetails = SharedData.getTasksByProjectId(projectId);
+        for (Object[] row : taskDetails) {
+            String priority = (String) row[9];
+            if (dataset.getIndex(priority) >= 0) {
+                dataset.setValue(priority, dataset.getValue(priority).intValue() + 1);
+            } else {
+                dataset.setValue(priority, 1);
             }
         }
         return dataset;
@@ -86,11 +84,10 @@ public class VisualizationPanel extends JPanel {
     private PieDataset createAssignedToDataset(int projectId) {
         DefaultPieDataset dataset = new DefaultPieDataset();
         Map<String, Integer> assignedToCount = new HashMap<>();
-        for (Object[] row : SharedData.rowData) {
-            if (projectId == 0 || (int) row[0] == projectId) {
-                String assignedTo = (String) row[10];
-                assignedToCount.put(assignedTo, assignedToCount.getOrDefault(assignedTo, 0) + 1);
-            }
+        Object[][] taskDetails = SharedData.getTasksByProjectId(projectId);
+        for (Object[] row : taskDetails) {
+            String assignedTo = (String) row[10];
+            assignedToCount.put(assignedTo, assignedToCount.getOrDefault(assignedTo, 0) + 1);
         }
         assignedToCount.forEach(dataset::setValue);
         return dataset;
@@ -99,8 +96,9 @@ public class VisualizationPanel extends JPanel {
     private PieDataset createCompletedByDataset(int projectId) {
         DefaultPieDataset dataset = new DefaultPieDataset();
         Map<String, Integer> completedByCount = new HashMap<>();
-        for (Object[] row : SharedData.rowData) {
-            if ((projectId == 0 || (int) row[0] == projectId) && "Resolved".equals(row[3])) {
+        Object[][] taskDetails = SharedData.getTasksByProjectId(projectId);
+        for (Object[] row : taskDetails) {
+            if ("Resolved".equals(row[3])) {
                 String completedBy = (String) row[7];
                 completedByCount.put(completedBy, completedByCount.getOrDefault(completedBy, 0) + 1);
             }
