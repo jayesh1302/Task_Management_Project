@@ -15,8 +15,9 @@ public class Dashboard extends JFrame {
     private JPanel contentPanel = new JPanel(cardLayout);
     private JList<String> menuList;
 
-    public Dashboard() {
-        setTitle("Dashboard");
+    public Dashboard(String userEmail) {
+    	String dashEmail = userEmail;
+        setTitle("Dashboard - "+dashEmail);
         setSize(1200, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
