@@ -6,7 +6,7 @@ This project is a Java-based task management application designed for efficient 
 
 1. **Clone the Repository**: 
    Clone the repository to your local machine using the command:
-   git clone https://github.com/jayesh1302/Task_Management_Project.git)https://github.com/jayesh1302/Task_Management_Project.git
+   ```git clone https://github.com/jayesh1302/Task_Management_Project.git)https://github.com/jayesh1302/Task_Management_Project.git```
 
 2. **Open the Folder in Eclipse**: 
 Navigate to the cloned repository folder and open it in Eclipse.
