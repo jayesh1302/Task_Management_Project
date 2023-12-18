@@ -1,6 +1,6 @@
 # Task Management Project
 
-This project is a Java-based task management application designed for efficient tracking and management of tasks.
+This project is a Java-based task management application designed for efficient tracking and management of tasks. Our Task Management Platform is a tool that helps teams manage and resolve issues and bugs efficiently. Our platform offers bug tracking, priority setting, real-time status updates, and collaboration features. The system uses databases, business logic and User Interface utilizing Java, enabling better organization and communication. This platform enhances teamwork and accelerates issue resolution in various contexts.
 
 ## Steps to Run
 
