@@ -38,3 +38,13 @@ You can either Sign Up with your details or use the following dummy user credent
 - **Username**: [Your dummy username]
 - **Password**: [Your dummy password]
 
+### UI Details
+![Login Page](https://imgur.com/a/KkC8UKK)
+
+![Dashboard](https://github.com/jayesh1302/Task_Management_Project/assets/46374452/ef7b526d-22b1-4ff9-851d-c4a9b385a4ab)
+
+![Project Page](https://github.com/jayesh1302/Task_Management_Project/assets/46374452/4f5938a3-0b9a-49f7-a10f-1cd8d5325290)
+
+![Visualization Page](https://github.com/jayesh1302/Task_Management_Project/assets/46374452/2bdcdcbf-0dd9-4e6b-9ca1-634a4298e02f)
+
+
