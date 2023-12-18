@@ -67,7 +67,7 @@ public class LoginPage {
             private Timer emailTimer;  // Timer to introduce a delay
 
             {
-                emailTimer = new Timer(500, new ActionListener() {
+                emailTimer = new Timer(1000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         toggleEmailError();
@@ -222,7 +222,7 @@ public class LoginPage {
             private Timer emailTimer;  // Timer to introduce a delay
 
             {
-                emailTimer = new Timer(500, new ActionListener() {
+                emailTimer = new Timer(1000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         toggleEmailError();
@@ -392,4 +392,3 @@ public class LoginPage {
         panel.add(textField, gbc);
     }
 }
-
