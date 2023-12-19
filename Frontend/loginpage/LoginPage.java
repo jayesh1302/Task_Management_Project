@@ -47,6 +47,18 @@ public class LoginPage {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(LoginPage::new);
     }
+    
+    private static JDialog createLoadingDialog(JFrame parentFrame) {
+        JDialog loadingDialog = new JDialog(parentFrame, "Loading", true);
+        JLabel loadingLabel = new JLabel("Please wait, logging in...");
+        loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+        loadingLabel.setVerticalAlignment(JLabel.CENTER);
+
+        loadingDialog.add(loadingLabel);
+        loadingDialog.setSize(200, 100);
+        loadingDialog.setLocationRelativeTo(parentFrame);
+        return loadingDialog;
+    }
 
     private static JPanel createLoginPanel(JFrame frame) {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -123,51 +135,84 @@ public class LoginPage {
     }
 
     private static void handleLogin(String userEmail, String userPassword, JFrame frame) {
-        String jsonInputString = String.format("{\"userEmail\":\"%s\", \"userPassword\":\"%s\"}", userEmail, userPassword);
-        try {
-        URL url = new URL(Constants.BACKEND_URL+"/api/v1/auth/login");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
-        
-	        try (OutputStream os = conn.getOutputStream()) {
-	            byte[] input = jsonInputString.getBytes();
-	            os.write(input, 0, input.length);
-	        }
-	
-	        int responseCode = conn.getResponseCode();
-	        StringBuilder response = new StringBuilder();
-	
-	        if (responseCode == HttpURLConnection.HTTP_OK) {
-	            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-	                String responseLine;
-	                while ((responseLine = br.readLine()) != null) {
-	                    response.append(responseLine.trim());
-	                }
-	            }
-	            String token = extractTokenFromResponse(response.toString());
-	            JwtStorage.saveJwtToken(token);
-	            SwingUtilities.invokeLater(() -> new Dashboard(userEmail));
-	            frame.dispose();
-	        } else {
-	            // If credentials are wrong or any other connection issue, read the error stream
-	            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
-	                String responseLine;
-	                while ((responseLine = br.readLine()) != null) {
-	                    response.append(responseLine.trim());
-	                }
-	            }
-	            // Extract error message from response
-	            String errorMessage = extractErrorMessageFromResponse(response.toString());
-	            loginErrorLabel.setText(errorMessage);
-	            loginErrorLabel.setVisible(true);
-	        }
-	    } catch (IOException ex) {
-	        loginErrorLabel.setText("Network error. Please try again later.");
-	        loginErrorLabel.setVisible(true);
-	    }
+        JDialog loadingDialog = new JDialog(frame, "Loading", true);
+        loadingDialog.setLayout(new FlowLayout());
+        JLabel loadingLabel = new JLabel("Loading...Please wait...");
+        loadingDialog.add(loadingLabel);
+        loadingDialog.setSize(200, 100);
+        loadingDialog.setLocationRelativeTo(frame);
+
+        new Thread(() -> {
+            String jsonInputString = String.format("{\"userEmail\":\"%s\", \"userPassword\":\"%s\"}", userEmail, userPassword);
+            try {
+                URL url = new URL(Constants.BACKEND_URL + "/api/v1/auth/login");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonInputString.getBytes();
+                    os.write(input, 0, input.length);
+                }
+
+                int responseCode = conn.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                	StringBuilder response = new StringBuilder();
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                        String responseLine;
+                        while ((responseLine = br.readLine()) != null) {
+                            response.append(responseLine.trim());
+                        }
+                    }
+                    String token = extractTokenFromResponse(response.toString());
+                    
+                    if (token != null) {
+                        JwtStorage.saveJwtToken(token);
+                        SwingUtilities.invokeLater(() -> {
+                            new Dashboard(userEmail).setVisible(true);
+                            frame.dispose();
+                        });
+                    } else {
+                        SwingUtilities.invokeLater(() -> {
+                            loadingLabel.setText("Failed to retrieve token from server.");
+                            loadingDialog.pack();
+                        });
+                    }
+                } else {
+                    StringBuilder response = new StringBuilder();
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+                        String responseLine;
+                        while ((responseLine = br.readLine()) != null) {
+                            response.append(responseLine.trim());
+                        }
+                    }
+                    // Extract error message and update the UI
+                    String errorMessage = extractErrorMessageFromResponse(response.toString());
+                    SwingUtilities.invokeLater(() -> {
+                        loadingLabel.setText(errorMessage);
+                        loadingDialog.pack();
+                    });
+                }
+            } catch (IOException ex) {
+                SwingUtilities.invokeLater(() -> {
+                    loadingLabel.setText("Network error. Please try again later.");
+                    loadingDialog.pack();
+                });
+            } finally {
+                // Close the loading dialog after a short delay
+                try {
+                    Thread.sleep(2000); // 2 seconds delay to allow user to read the message
+                } catch (InterruptedException ignored) {}
+                loadingDialog.dispose();
+            }
+        }).start();
+
+        loadingDialog.setVisible(true);
     }
+
+
     private static String extractErrorMessageFromResponse(String response) {
         String errorPrefix = "\"error\":\"";
         String errorSuffix = "\"";
