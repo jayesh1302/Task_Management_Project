@@ -25,6 +25,19 @@ Navigate to the cloned repository folder and open it in Eclipse.
 - Add all of the jar files into your build path.
 - Click `Apply` and then `Close`.
 
+### Necessary JAR files for our project: 
+
+- httpcore-4.4.10.jar
+- commons-logging-1.2.jar
+- commons-codec-1.10.jar
+- jcommon-1.0.23.jar
+- jfreechart-1.0.19.jar
+- Httpclient-4.5.6.jar
+- org.json.jar 
+- jcalendar-1.4.jar
+
+![External JARs](https://github.com/jayesh1302/Task_Management_Project/assets/46374452/607f5906-1907-47bc-99cc-c4518e89b4a5)
+
 6. **Run the Application**:
 - Go to `LoginPage.java`.
 - Right-click on the file.
