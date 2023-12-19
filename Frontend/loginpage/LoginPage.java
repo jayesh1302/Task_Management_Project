@@ -135,14 +135,13 @@ public class LoginPage {
     }
 
     private static void handleLogin(String userEmail, String userPassword, JFrame frame) {
-        // Create a loading dialog
         JDialog loadingDialog = new JDialog(frame, "Loading", true);
         loadingDialog.setLayout(new FlowLayout());
-        loadingDialog.add(new JLabel("Loading...Please wait..."));
+        JLabel loadingLabel = new JLabel("Loading...Please wait...");
+        loadingDialog.add(loadingLabel);
         loadingDialog.setSize(200, 100);
         loadingDialog.setLocationRelativeTo(frame);
 
-        // Use a separate thread to handle login process
         new Thread(() -> {
             String jsonInputString = String.format("{\"userEmail\":\"%s\", \"userPassword\":\"%s\"}", userEmail, userPassword);
             try {
@@ -158,44 +157,41 @@ public class LoginPage {
                 }
 
                 int responseCode = conn.getResponseCode();
-                StringBuilder response = new StringBuilder();
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                        String responseLine;
-                        while ((responseLine = br.readLine()) != null) {
-                            response.append(responseLine.trim());
-                        }
-                    }
-                    String token = extractTokenFromResponse(response.toString());
-                    JwtStorage.saveJwtToken(token);
-                    SwingUtilities.invokeLater(() -> {
-                        new Dashboard(userEmail).setVisible(true);
-                        frame.dispose();
-                    });
+                    // Handle success scenario...
                 } else {
-                    // If credentials are wrong or any other connection issue, read the error stream
+                    StringBuilder response = new StringBuilder();
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
                         String responseLine;
                         while ((responseLine = br.readLine()) != null) {
                             response.append(responseLine.trim());
                         }
                     }
-                    // Extract error message from response
+                    // Extract error message and update the UI
                     String errorMessage = extractErrorMessageFromResponse(response.toString());
-                    SwingUtilities.invokeLater(() -> loginErrorLabel.setText(errorMessage));
+                    SwingUtilities.invokeLater(() -> {
+                        loadingLabel.setText(errorMessage);
+                        loadingDialog.pack();
+                    });
                 }
             } catch (IOException ex) {
-                SwingUtilities.invokeLater(() -> loginErrorLabel.setText("Network error. Please try again later."));
+                SwingUtilities.invokeLater(() -> {
+                    loadingLabel.setText("Network error. Please try again later.");
+                    loadingDialog.pack();
+                });
             } finally {
-                // Close the loading dialog
+                // Close the loading dialog after a short delay
+                try {
+                    Thread.sleep(2000); // 2 seconds delay to allow user to read the message
+                } catch (InterruptedException ignored) {}
                 loadingDialog.dispose();
             }
         }).start();
 
-        // Show loading dialog
         loadingDialog.setVisible(true);
     }
+
 
     private static String extractErrorMessageFromResponse(String response) {
         String errorPrefix = "\"error\":\"";
