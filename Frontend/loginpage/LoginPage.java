@@ -159,7 +159,27 @@ public class LoginPage {
                 int responseCode = conn.getResponseCode();
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    // Handle success scenario...
+                	StringBuilder response = new StringBuilder();
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                        String responseLine;
+                        while ((responseLine = br.readLine()) != null) {
+                            response.append(responseLine.trim());
+                        }
+                    }
+                    String token = extractTokenFromResponse(response.toString());
+                    
+                    if (token != null) {
+                        JwtStorage.saveJwtToken(token);
+                        SwingUtilities.invokeLater(() -> {
+                            new Dashboard(userEmail).setVisible(true);
+                            frame.dispose();
+                        });
+                    } else {
+                        SwingUtilities.invokeLater(() -> {
+                            loadingLabel.setText("Failed to retrieve token from server.");
+                            loadingDialog.pack();
+                        });
+                    }
                 } else {
                     StringBuilder response = new StringBuilder();
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
