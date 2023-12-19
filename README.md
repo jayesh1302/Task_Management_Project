@@ -27,14 +27,15 @@ Navigate to the cloned repository folder and open it in Eclipse.
 
 ### Necessary JAR files for our project: 
 
-- httpcore-4.4.10.jar
-- commons-logging-1.2.jar
 - commons-codec-1.10.jar
-- jcommon-1.0.23.jar
-- jfreechart-1.0.19.jar
-- Httpclient-4.5.6.jar
-- org.json.jar 
+- commons-logging-1.2.jar
+- httpclient-4.5.6.jar
+- httpcore-4.4.10.jar
 - jcalendar-1.4.jar
+- jcommon-1.0.24.jar
+- jfreechart-1.0.19-demo.jar
+- jfreechart.jar
+- json-20231013.jar
 
 ![External JARs](https://github.com/jayesh1302/Task_Management_Project/assets/46374452/607f5906-1907-47bc-99cc-c4518e89b4a5)
 
